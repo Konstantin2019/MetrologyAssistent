@@ -1,0 +1,11 @@
+FROM python:3.9.12
+WORKDIR /app
+
+COPY server/api ./api
+COPY server/migrations ./migrations
+COPY server/config.py server/runner.py server/requirements.txt server/.env ./
+COPY server/flask-entrypoint.sh ./flask-entrypoint.sh
+RUN pip3 install -r ./requirements.txt
+ENV FLASK_ENV production
+
+EXPOSE 3001

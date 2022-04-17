@@ -1,0 +1,205 @@
+h1 {
+  text-align: center;
+  padding: 2%;
+  color: lightslategray;
+}
+
+h2 {
+  text-align: center;
+  font-style: italic;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+label {
+  margin-right: 2%;
+}
+
+form {
+  padding: 5%;
+}
+
+input[type=submit] {
+  min-width: 15%;
+  max-width: 30%;
+  margin-top: 1%;
+  padding-left: 1%;
+  padding-right: 1%;
+}
+
+thead button.ascending::after {
+  content: '️️\25BC';
+  display: inline-block;
+  margin-left: 1em;
+}
+
+thead button.descending::after {
+  content: '\25B2';
+  display: inline-block;
+  margin-left: 1em;
+}
+
+.container-fluid {
+  margin: 0.5%;
+  text-align: center;
+  padding: 3%;
+  background-color: rgb(225, 242, 250);
+  border-radius: .8rem; 
+}
+
+.page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-control {
+  width: 50%;
+}
+
+.table {
+  width: 100%;
+}
+
+.col-sm-4 {
+  text-align: right;
+  width: 30%!important;
+}
+
+.col-sm-8 {
+  text-align: left;
+}
+
+.row {
+  padding-top: 0.25%;
+  padding-bottom: 0.25%;
+}
+
+.navbar .navbar-brand {
+  color: cadetblue;
+  font-size: xx-large;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.student-label {
+  text-align: center;
+  border: 1px dashed black;
+}
+
+.student-info {
+  color:crimson;
+  font-size: medium;
+  font-family: sans-serif;
+}
+
+.timer-label {
+  color: darkgreen;
+  font-size: large;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+@media (min-width: 320px) and (max-width: 576px) {
+  .container {
+    max-width: 100%;
+    margin: auto;
+    padding: 0;
+  }
+  .container-auth {
+    margin: auto;
+    background-color: rgb(225, 242, 250);
+    border-radius: .8rem; 
+    max-width: 100%;
+  }
+  .col-sm-4 {
+    text-align: left!important;
+    width: 30%!important;
+  }
+  .table thead {
+    display: none;
+  }
+  .table td {
+    display: block;
+  }
+  input[type=submit] {
+    font-size: 50%!important;
+  }
+  h1, h2 {
+    font-size: 125%!important;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+  .container {
+    max-width: 95%;
+    margin: auto;
+    padding: 0;
+  }
+
+  .container-auth {
+    margin: auto;
+    background-color: rgb(225, 242, 250);
+    border-radius: .8rem; 
+    max-width: 100%;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table td {
+    display: block;
+  }
+
+  input[type=submit] {
+    font-size: 50%!important;
+  }
+
+  h1, h2 {
+    font-size: 125%!important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  .container {
+    max-width: 90%;
+  }
+
+  .container-auth {
+    margin: auto;
+    background-color: rgb(225, 242, 250);
+    border-radius: .8rem; 
+    max-width: 90%;
+  }
+
+  input[type=submit] {
+    font-size: 80%;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  .container {
+    max-width: 85%;
+  }
+  
+  .container-auth {
+    margin: auto;
+    background-color: rgb(225, 242, 250);
+    border-radius: .8rem; 
+    max-width: 75%;
+  }
+}
+
+@media (min-width: 1199.98px) {
+  .container {
+    max-width: 80%;
+  }
+  
+  .container-auth {
+    margin: auto;
+    background-color: rgb(225, 242, 250);
+    border-radius: .8rem; 
+    max-width: 60%;
+  }
+}
