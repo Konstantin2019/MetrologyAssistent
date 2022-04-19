@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef, useMemo } from 'react';
+import { React, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import Row from 'react-bootstrap/Row';
 import PaginationComponent from './components/user/pagination';
@@ -18,19 +18,28 @@ const UserTest = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [questionsPerPage] = useState(1);
     const [totalQuestions, setTotalQuestions] = useState(5);
-    const [reload, setReload] = useState(0);
     const paginate = page => setCurrentPage(page);
     const prev = () => setCurrentPage(page => page > 1 ? page - 1 : page);
     const next = total => setCurrentPage(page => page < total ? page + 1 : page);
     const navigate = useNavigate();
-    const setTime = (startTime, interval) => {
-        if (startTime !== (undefined || null) && interval !== (undefined || null)) {
-            let timeLeft = Math.round((new Date() - new Date(startTime)) / 60000); //в мин
-            let remainingTime = interval - timeLeft;
-            if (remainingTime >= 0) { setRemainingTime(remainingTime) }
-            else { setReload(reload => reload + 1) }
-        }
-    };
+    const finish = useCallback(
+        () => {
+            axios.post(url, { status: 'finish' })
+                .then(_ => {
+                    alert("Рубежный контроль завершён!");
+                    navigate('/');
+                })
+                .catch(err => alert(err.response.data))
+        }, [url, navigate]);
+    const setTime = useCallback(
+        (startTime, interval) => {
+            if (startTime !== (undefined || null) && interval !== (undefined || null)) {
+                let timeLeft = Math.round((new Date() - new Date(startTime)) / 60000); //в мин
+                let remainingTime = interval - timeLeft;
+                if (remainingTime >= 0) { setRemainingTime(remainingTime) }
+                else { finish() }
+            };
+        }, [finish]);
     useEffect(() => {
         const CancelToken = axios.CancelToken;
         const source = CancelToken.source();
@@ -42,7 +51,8 @@ const UserTest = () => {
                     let interval = data['duration'];
                     let questions = data['questions'].map(json => JSON.parse(json));
                     if (questions.length > 0) {
-                        dbQuestions.current = questions;
+                        dbQuestions.current = questions.sort((q1, q2) => q1.index > q2.index ? 1 : -1);
+                        console.log(dbQuestions.current);
                         for (let i = 0; i < questions.length; i++) { images.current.push(null) }
                         setTotalQuestions(dbQuestions.current.length);
                         setCurrentPage(1);
@@ -60,19 +70,17 @@ const UserTest = () => {
             source.cancel();
             if (timerId !== null) { clearInterval(timerId.current) };
         };
-    }, [dbQuestions, images, url, navigate, reload]);
+    }, [dbQuestions, images, url, navigate, setTime]);
     const currentQuestions = useMemo(
         () => {
             let lastIdx = currentPage * questionsPerPage;
             let firstIdx = lastIdx - questionsPerPage;
-            let currentQuestions = dbQuestions.current
-                .slice(firstIdx, lastIdx)
-                .sort((q1, q2) => q1.index > q2.index ? 1 : -1);
+            let currentQuestions = dbQuestions.current.slice(firstIdx, lastIdx);
             return currentQuestions;
         }, [dbQuestions, currentPage, questionsPerPage]);
     return (
         <section>
-            <StudentLabel params={[surname, name, patronymic, group, test, teacher, remainingTime]}/>
+            <StudentLabel params={[surname, name, patronymic, group, test, teacher, remainingTime]} />
             <QuestionsComponent url={url} questions={currentQuestions} images={images} />
             <div className="container">
                 <Row>
@@ -81,11 +89,7 @@ const UserTest = () => {
                 <Row className="row justify-content-center">
                     <input className="btn btn-success" value="Завершить"
                         style={{ "maxWidth": "50%" }}
-                        onClick={() =>
-                            axios.post(url, { status: 'terminate' })
-                                .then(_ => setReload(reload => reload + 1))
-                                .catch(err => alert(err.response.data))
-                        }
+                        onClick={() => finish()}
                     />
                 </Row>
             </div>

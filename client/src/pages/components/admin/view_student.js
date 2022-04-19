@@ -48,7 +48,7 @@ const ViewStudent = ({ students }) => {
                         </td>
                         <td>
                             <button className="btn btn-default" type="button" title="Просмотреть"
-                                onClick={() => navigate(`/admin_panel/rk1/${student.id}`, 
+                                onClick={() => navigate(`/admin_panel/rk2/${student.id}`, 
                                 {
                                     state: {
                                         studentId: student.id,

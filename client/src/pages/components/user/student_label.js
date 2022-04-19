@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 const StudentLabel = (props) => {
     const [surname, name, patronymic, group, test, teacher, remainingTime] = props.params;
     return (
-        <div className="container" style={{ "width": "50%" }}>
+        <div className="container" style={{ "width": "50%", "marginTop": "1%" }}>
             <Row className="student-info">
                 <Col className='student-label'>
                     <label>ФИО:</label>

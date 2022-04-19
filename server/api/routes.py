@@ -133,8 +133,8 @@ def init_controllers(api):
         else:
             return make_response('Передан неверный id студента!', 400)
 
-    @api.route('/api/admin/patch_question/<int:question_id>', methods=['POST'])
-    def patch_question_score(question_id):
+    @api.route('/api/admin/patch_score/<int:question_id>', methods=['POST'])
+    def patch_score(question_id):
         data = request.get_json()
         try:
             patch = {'score': int(data['question_score'])}
@@ -146,6 +146,20 @@ def init_controllers(api):
                 return make_response('Передан неверный id вопроса!', 400)
         except (KeyError, ValueError):
             return make_response('Невалидные данные для обновления баллов!', 400)
+
+    @api.route('/api/admin/patch_answer/<int:question_id>', methods=['POST'])
+    def patch_answer(question_id):
+        data = request.get_json()
+        try:
+            patch = {'student_answer': data['answer']}
+            rk_cls = RK1 if data['rk'] == 'rk1' else RK2
+            returned_id = sql_provider.update(rk_cls, question_id, patch)
+            if returned_id:
+                return make_response(json.dumps(returned_id), 200)
+            else:
+                return make_response('Передан неверный id вопроса!', 400)
+        except (KeyError, ValueError):
+            return make_response('Невалидные данные для изменения ответа!', 400)
     #endregion 
 
     #region Student
@@ -184,17 +198,16 @@ def init_controllers(api):
         student = sql_provider.get(Student, student_id)
         if not student:
             return make_response('Студент не найден!', 404)
-        sheduler_id = f'{rk_choice}_{student.id}_{teacher}'
         start_time = student.rk1_start_time if rk_choice == 'rk1' else student.rk2_start_time
         finish_time = student.rk1_finish_time if rk_choice == 'rk1' else student.rk2_finish_time
         if finish_time:
-            return make_response('Рубежный контроль выполнен!', 500)
+            return make_response('Рубежный контроль уже выполнен!', 500)
         interval = store['time_for_rk1'] if rk_choice == 'rk1' else store['time_for_rk2']
         checker, task1_loader, task2_loader = select(teacher)
         rk_loader = task1_loader if rk_choice == 'rk1' else task2_loader
         rk_cls = RK1 if rk_choice == 'rk1' else RK2
         if request.method == 'GET':
-            start_time, questions = load_task(sheduler_id, student, teacher, rk_choice, rk_loader, rk_cls, interval, start_time, finish_time)
+            start_time, questions = load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time, finish_time)
             if not start_time and not questions:
                 return make_response('Ошибка загрузки вопросов', 500)
             else:
@@ -205,8 +218,8 @@ def init_controllers(api):
         if request.method == 'POST':
             data = request.get_json()
             try:
-                if 'status' in data and data['status'] == 'terminate':
-                    do_on_complete(student_id, rk_choice, sheduler_id)
+                if 'status' in data and data['status'] == 'finish':
+                    do_on_complete(student_id, rk_choice)
                     return make_response('', 200)
                 question_id = data['question_id']
                 question_index = data['index']
@@ -219,7 +232,7 @@ def init_controllers(api):
                 return make_response('Ответ не валиден!', 400)
 
     #region task_funcs
-    def load_task(sheduler_id, student, teacher, rk_choice, rk_loader, rk_cls, interval, start_time=None, finish_time=None):
+    def load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time=None, finish_time=None):
         file_name = 'rk1.json' if rk_choice == 'rk1' else 'rk2.json'
         if finish_time:
             return []
@@ -236,9 +249,6 @@ def init_controllers(api):
                                if rk_choice == 'rk1' \
                                else {'rk2_start_time': datetime.now().isoformat()}
                 sql_provider.update(Student, student.id, time_patch)
-                api.apscheduler.add_job(func=do_on_complete, trigger='interval', minutes=interval, \
-                                        args=[student.id, rk_choice, sheduler_id], id=sheduler_id)
-                print(f'Планировщик с именем {sheduler_id} начал работу...')
                 start_time = time_patch['rk1_start_time'] if rk_choice == 'rk1' else time_patch['rk2_start_time']
             except:
                 return None, None

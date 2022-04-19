@@ -18,8 +18,19 @@ const ViewQuestion = () => {
             .then(sortedQuestions => setQuestions([...sortedQuestions]))
             .catch(err => alert(err.response.data));
     }, [studentId, test_name, reload]);
+    const patchAnswer = (questionId, answer) => {
+        let url = `/api/admin/patch_answer/${questionId}`;
+        let patch = {
+            rk: test_name,
+            answer: answer
+        };
+        axios.post(url, patch)
+            .then(_ => { })
+            .catch(err => alert(err.response.data))
+            .finally(_ => setReload(reload => reload + 1));
+    };
     const patchScore = (questionId, score) => {
-        let url = `/api/admin/patch_question/${questionId}`;
+        let url = `/api/admin/patch_score/${questionId}`;
         let patch = {
             rk: test_name,
             question_score: score
@@ -42,6 +53,7 @@ const ViewQuestion = () => {
                             <th scope="col">№</th>
                             <th scope="col">Вопрос</th>
                             <th scope="col">Ответ студента</th>
+                            <th scope="col"></th>
                             <th scope="col">Правильный ответ</th>
                             <th scope="col">Балл</th>
                             <th scope="col"></th>
@@ -53,6 +65,17 @@ const ViewQuestion = () => {
                                 <td>{question.index}</td>
                                 <td style={{ "textAlign": "justify" }}>{question.question}</td>
                                 <td>{question.student_answer}</td>
+                                <td>
+                                    <button className="btn btn-default" type="button" title="Исправить ответ"
+                                        onClick={() => {
+                                            let answer = prompt('Введите ответ: ');
+                                            if (![null, ''].includes(answer)) { patchAnswer(question.id, answer) }
+                                        }}>
+                                        <span style={{ "color": "#c9643b" }}>
+                                            <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
+                                        </span>
+                                    </button>
+                                </td>
                                 <td>{question.correct_answer}</td>
                                 <td>{question.score}</td>
                                 <td>
