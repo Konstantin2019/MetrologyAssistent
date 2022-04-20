@@ -26,14 +26,15 @@ const DelGroup = (groups, groupName, setGroupName, setReload) => {
         .catch(err => alert(err.response.data));
 };
 
-const AddStudent = (surname, setSurname, name, setName,
-    patronymic, setPatronymic, email, setEmail,
-    selectedGroup, setReload) => {
+const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload) => {
+    if (patronymic === (undefined || null)) {
+        patronymic = ''
+    } 
     let student = {
-        surname: surname,
-        name: name,
-        patronymic: patronymic,
-        email: email,
+        surname: surname.replace(/\s+/g, ''),
+        name: name.replace(/\s+/g, ''),
+        patronymic: patronymic.replace(/\s+/g, ''),
+        email: email.replace(/\s+/g, '').toLowerCase(),
         group_id: selectedGroup.id
     };
     let url = '/api/admin/add_students';
@@ -65,6 +66,7 @@ const ReadExcel = (e) => {
         };
         fileReader.onerror = (e) => reject(e);
     });
+    e.target.value = null;
     return promise;
 };
 
@@ -72,11 +74,14 @@ const AddStudents = (studentsPromise, groups, setReload) => {
     studentsPromise.then(records => {
         let students = records.map(record => {
             let group_id = groups.filter(g => g.group_name === record.Группа).map(g => g.id)[0];
+            if (!record.hasOwnProperty('Отчество')) {
+                record.Отчество = ''
+            };
             let student = {
-                surname: record.Фамилия,
-                name: record.Имя,
-                patronymic: record.Отчество,
-                email: record.Почта,
+                surname: record.Фамилия.replace(/\s+/g, ''),
+                name: record.Имя.replace(/\s+/g, ''),
+                patronymic: record.Отчество.replace(/\s+/g, ''),
+                email: record.Почта.replace(/\s+/g, '').toLowerCase(),
                 group_id: group_id
             };
             return student;

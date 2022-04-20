@@ -19,22 +19,18 @@ class RK1_Checker():
                 RE_dif = (correct_answer['RE'] - student_answer['RE']) / correct_answer['RE']
                 SE_dif = (correct_answer['SE'] - student_answer['SE']) / correct_answer['SE']
                 if abs(RE_dif) <= 0.05 and abs(SE_dif) <= 0.05:
-                    return 12, dumps(student_answer)
+                    return 1, dumps(student_answer)
                 else: 
                     return 0, dumps(student_answer)
             elif index == 2:
-                if len(spam) != 4:
+                if len(spam) != 2:
                     raise ContentError
-                student_answer = { 'Smax': float(spam[0]), 'Smin': float(spam[1]), \
-                                   'Sm': float(spam[2]), 'Ts': float(spam[3]) }
-                Smax_dif = (correct_answer['Smax'] - student_answer['Smax']) / correct_answer['Smax']
-                Smin_dif = (correct_answer['Smin'] - student_answer['Smin']) / correct_answer['Smin']
-                Sm_dif = (correct_answer['Sm'] - student_answer['Sm']) / correct_answer['Sm']
-                Ts_dif = (correct_answer['Ts'] - student_answer['Ts']) / correct_answer['Ts']
-                if abs(Smax_dif) <= 0.05 and abs(Smin_dif) <= 0.05 \
-                   and abs(Sm_dif) <= 0.05 and abs(Ts_dif) <= 0.05:
-                    return 12, dumps(student_answer)
-                else:
+                student_answer = { 'Ps': int(spam[0]), 'Pn': int(spam[1]) }
+                Ps_dif = (correct_answer['Ps'] - student_answer['Ps']) / correct_answer['Ps']
+                Pn_dif = (correct_answer['Pn'] - student_answer['Pn']) / correct_answer['Pn']
+                if abs(Ps_dif) <= 0.05 and abs(Pn_dif) <= 0.05:
+                    return 1, dumps(student_answer)
+                else: 
                     return 0, dumps(student_answer)
             elif index == 3:
                 if len(spam) != 2:
@@ -52,7 +48,7 @@ class RK1_Checker():
                 k1_dif = (correct_answer['k1'] - student_answer['k1']) / correct_answer['k1']
                 k2_dif = (correct_answer['k2'] - student_answer['k2']) / correct_answer['k2']
                 if abs(k1_dif) <= 0.05 and abs(k2_dif) <= 0.05:
-                    return 12, dumps(student_answer)
+                    return 1, dumps(student_answer)
                 else: 
                     return 0, dumps(student_answer)
             elif index == 4:
@@ -66,7 +62,7 @@ class RK1_Checker():
                 Tn_dif = (correct_answer['Tn'] - student_answer['Tn']) / correct_answer['Tn']
                 if abs(Nmax_dif) <= 0.05 and abs(Nmin_dif) <= 0.05 \
                    and abs(Nm_dif) <= 0.05 and abs(Tn_dif) <= 0.05:
-                    return 12, dumps(student_answer)
+                    return 1, dumps(student_answer)
                 else:
                     return 0, dumps(student_answer)
             elif index == 5:
@@ -75,7 +71,7 @@ class RK1_Checker():
                 student_answer = { 'delta_instr': float(spam[0]) }
                 delta_instr_dif = (correct_answer['delta_instr'] - student_answer['delta_instr']) / correct_answer['delta_instr']
                 if abs(delta_instr_dif) <= 0.05:
-                    return 12, dumps(student_answer)
+                    return 1, dumps(student_answer)
                 else:
                     return 0, dumps(student_answer)
         except (ValueError, ContentError):

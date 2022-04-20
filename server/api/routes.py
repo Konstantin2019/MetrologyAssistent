@@ -188,7 +188,8 @@ def init_controllers(api):
             return make_response('Аутентификация невозможна!', 500)
         data = request.get_json()
         if 'email' in data and data['email']:
-            student = sql_provider.query(Student).filter_by(email=data['email']).scalar()
+            email = data['email'].lower()
+            student = sql_provider.query(Student).filter_by(email=email).scalar()
             if student:
                 return make_response(json.dumps(student.id), 200)
         return make_response('Студент не найден!', 404)

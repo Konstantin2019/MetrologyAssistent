@@ -1,6 +1,7 @@
 from random import gauss, randint, uniform, choice
 from numpy import std, mean
 from math import sqrt
+from scipy import stats
 from json import load, dumps
 
 #region inner_gen_funcs
@@ -21,18 +22,14 @@ def __rk1_task1_gen():
                        offset=uniform(0.1, 0.9), n=choice([10, 12, 14]))
 
 def __rk1_task2_gen():
-  def __inner_gen__(ES, EI, es, ei):
-    Smax = ES - ei
-    Smin = EI - es
-    Sm = (Smax + Smin) / 2
-    Ts = Smax - Smin
-    return {'Task':{'ES': ES, 'EI': EI, 'es': es, 'ei': ei,}, \
-            'Answer': {'Smax': Smax, 'Smin': Smin, 'Sm': round(Sm), 'Ts': Ts}}
-  EI = randint(0, 200)
-  ES = EI + randint(20, 100)
-  es = randint(-200, 0)
-  ei = es - randint(20, 100)
-  return __inner_gen__(ES=ES, EI=EI, es=es, ei=ei)
+  def __inner_gen__(TD, Td, Sm):
+    Tsn = sqrt(TD**2 + Td**2)
+    z = (6*Sm) / Tsn
+    F = stats.norm.cdf(z) - 0.5
+    Ps = 0.5 + F
+    Pn = 1 - Ps
+    return {'Task':{'TD': TD, 'Td': Td, 'Sm': Sm}, 'Answer': {'Ps': Ps * 100, 'Pn': Pn * 100}}
+  return __inner_gen__(TD=randint(20, 100), Td=randint(20, 100), Sm=randint(-20, 20))
 
 def __rk1_task3_gen():
   def __inner_gen__(L1, L2, T1, T2):
@@ -79,13 +76,12 @@ def __rk1_task1_prepare(text, values):
     return { text : dumps(answer) }
     
 def __rk1_task2_prepare(text, values):
-    text = text.replace('{ES = }', 'ES = ' + str(values['Task']['ES'])) \
-               .replace('{EI = }', 'EI = ' + str(values['Task']['EI'])) \
-               .replace('{es = }', 'es = ' + str(values['Task']['es'])) \
-               .replace('{ei = }', 'ei = ' + str(values['Task']['ei']))
-    answer = { 'Smax': values['Answer']['Smax'], 'Smin': values['Answer']['Smin'], \
-               'Sm': values['Answer']['Sm'], 'Ts': values['Answer']['Ts'] }
-    return { text : dumps(answer) }      
+    text = text.replace('{TD = }', 'TD = ' + str(values['Task']['TD'])) \
+               .replace('{Td = }', 'Td = ' + str(values['Task']['Td'])) \
+               .replace('{Sm = }', 'Sm = ' + str(values['Task']['Sm']))
+    answer = { 'Ps': round(values['Answer']['Ps']), \
+               'Pn': round(values['Answer']['Pn']) }
+    return { text : dumps(answer) }  
 
 def __rk1_task3_prepare(text, values):
     text = text.replace('{L1 = }', 'L1 = ' + str(values['Task']['L1'])) \
