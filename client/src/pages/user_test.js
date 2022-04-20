@@ -89,7 +89,10 @@ const UserTest = () => {
                 <Row className="row justify-content-center">
                     <input className="btn btn-success" value="Завершить"
                         style={{ "maxWidth": "50%" }}
-                        onClick={() => finish()}
+                        onClick={() => {
+                            let yes = window.confirm("Вы уверены, что хотите завершить?");
+                            if (yes) { finish() }
+                        }}
                     />
                 </Row>
             </div>
