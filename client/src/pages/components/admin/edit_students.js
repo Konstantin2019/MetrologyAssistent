@@ -137,7 +137,10 @@ const EditStudent = (props) => {
                                             <td>{groups.filter(g => g.id === student.group_id).map(g => g.group_name)[0]}</td>
                                             <td>
                                                 <button className="btn btn-default" type="button" title="Удалить"
-                                                    onClick={() => DelStudent(student.id, setReload)}>
+                                                    onClick={() => {
+                                                        let yes = window.confirm("Удалить студента?");
+                                                        if (yes) { DelStudent(student.id, setReload) }
+                                                    }}>
                                                     <span style={{ "color": "red" }}>
                                                         <FontAwesomeIcon icon={faBan}></FontAwesomeIcon>
                                                     </span>

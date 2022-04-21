@@ -10,11 +10,13 @@ const GroupSelector = (props) => {
                     let index = e.target.selectedIndex;
                     let elem = e.target.childNodes[index];
                     let group_id = parseInt(elem.id);
-                    setSelectedGroup({
+                    let group = {
                         group_name: e.target.value,
                         id: group_id,
                         year_id: selectedYearId
-                    })
+                    };
+                    localStorage.setItem('selectedGroup', JSON.stringify(group));
+                    setSelectedGroup(group);
                 }}>
                 {groups.map((group) => (
                     <option id={group.id} key={group.id} value={group.group_name}>{group.group_name}</option>

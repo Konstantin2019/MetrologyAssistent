@@ -28,7 +28,14 @@ const AdminPanel = () => {
                     setSelectedYear(dbYears.current[0]);
                 }
                 if (dbGroups.current.length > 0) {
-                    setSelectedGroup(dbGroups.current[0]);
+                    let selectedGroupJson = localStorage.getItem('selectedGroup');
+                    if (selectedGroupJson !== (undefined || null)) {
+                        let selectedGroup = JSON.parse(selectedGroupJson);
+                        setSelectedGroup(selectedGroup);
+                    }
+                    else {
+                        setSelectedGroup(dbGroups.current[0]);
+                    }
                 }
             })
             .catch(_ => navigate('/admin_auth'));
