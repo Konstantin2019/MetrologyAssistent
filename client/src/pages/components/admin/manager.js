@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
 import axios from 'axios';
 
 const AddGroup = (groupName, setGroupName, setReload) => {
@@ -29,7 +30,7 @@ const DelGroup = (groups, groupName, setGroupName, setReload) => {
 const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload) => {
     if (patronymic === (undefined || null)) {
         patronymic = ''
-    } 
+    }
     let student = {
         surname: surname.replace(/\s+/g, ''),
         name: name.replace(/\s+/g, ''),
@@ -68,6 +69,27 @@ const ReadExcel = (e) => {
     });
     e.target.value = null;
     return promise;
+};
+
+const LoadToExcel = (students, fileName) => {
+    let studentsToLoad = students.map(student => {
+        let studentToLoad = {
+            Фамилия: student.surname,
+            Имя: student.name,
+            Отчество: student.patronymic,
+            РК1: student.rk1_score,
+            РК2: student.rk2_score
+        };
+        return studentToLoad;
+    });
+    let fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    let fileExtension = '.xlsx';
+    let worksheet = XLSX.utils.json_to_sheet(studentsToLoad);
+    let workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+    let excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    let result = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(result, fileName + fileExtension);
 };
 
 const AddStudents = (studentsPromise, groups, setReload) => {
@@ -110,4 +132,4 @@ const DelStudent = (studentId, setReload) => {
         .catch(err => alert(err.response.data));
 };
 
-export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel }
+export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, LoadToExcel }

@@ -7,6 +7,7 @@ import GroupSelector from './components/common/group_selector';
 import ViewStudent from './components/admin/view_student';
 import EditStudent from './components/admin/edit_students';
 import axios from 'axios';
+import { LoadToExcel } from './components/admin/manager';
 
 const AdminPanel = () => {
     const [reload, setReload] = useState(0);
@@ -77,6 +78,10 @@ const AdminPanel = () => {
                         <div className="container">
                             <div className="container-fluid">
                                 <ViewStudent students={currentStudents} />
+                                <button className="btn btn-outline-primary"
+                                    onClick={() => LoadToExcel(currentStudents, selectedGroup.group_name)}>
+                                    Экспорт в Excel
+                                </button>
                             </div>
                         </div>
                     </section>

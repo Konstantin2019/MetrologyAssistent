@@ -85,7 +85,8 @@ const EditStudent = (props) => {
                 <AccordionItem eventKey="1">
                     <AccordionHeader>Загрузить студентов из файла</AccordionHeader>
                     <AccordionBody>
-                        <input type="file" className="fileSelect" placeholder="Выберите файл"
+                        <label htmlFor="import" className="btn btn-outline-primary">Загрузить студентов</label>
+                        <input id="import" type="file" style={{ "visibility": "hidden", "maxWidth":"0" }}
                             onChange={(e) => {
                                 let studentsPromise = ReadExcel(e);
                                 AddStudents(studentsPromise, groups, setReload);

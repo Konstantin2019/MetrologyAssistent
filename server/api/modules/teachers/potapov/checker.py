@@ -81,7 +81,7 @@ class RK2_Checker():
         try:
             correct_answer = loads(self.correct_answer)
             self.answer = self.answer.replace(',', '.').strip()
-            spam = re.split('/ | |/', self.answer)
+            spam = re.split('/ |/|&', self.answer)
             if index == 1:
                 if len(spam) < 1 and len(spam) > 2:
                     raise ContentError
