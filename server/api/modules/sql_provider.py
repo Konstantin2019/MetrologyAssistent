@@ -77,3 +77,11 @@ class SQLProvider():
         except Exception as err:
             self.orm.session.rollback()
             print('Ошибка удаления из БД : ' + str(err))
+    
+    def delete_many(self, cls, ids: list):
+        if len(ids) > 0:
+            for id in ids:
+                self.delete(cls, id)
+            return ids
+        else:
+            raise ValueError

@@ -160,6 +160,30 @@ def init_controllers(api):
                 return make_response('Передан неверный id вопроса!', 400)
         except (KeyError, ValueError):
             return make_response('Невалидные данные для изменения ответа!', 400)
+
+    @api.route('/api/admin/del_questions', methods=['POST'])
+    def del_questions():
+        data = request.get_json()
+        try:
+            student_id = data['student_id']
+            test_name = data['test_name']
+            rk_cls = RK1 if test_name == 'rk1' else RK2
+            questions = sql_provider.query(rk_cls).filter_by(student_id=student_id).all()
+            questions_ids = [question.id for question in questions]
+            returned_ids = sql_provider.delete_many(rk_cls, questions_ids)
+            if returned_ids:
+                patch = {'rk1_start_time': None} \
+                        if test_name == 'rk1' \
+                        else {'rk2_start_time': None}
+                patch.update({'rk1_finish_time': None} \
+                        if test_name == 'rk1' \
+                        else {'rk2_finish_time': None})
+                sql_provider.update(Student, student_id, patch)
+                return make_response(json.dumps(returned_ids), 200)
+            else:
+                return make_response('Передан неверный id студента или вопросы не существуют!', 400)
+        except KeyError:
+            return make_response('Переданы неверные параметры запроса!', 400)
     #endregion 
 
     #region Student

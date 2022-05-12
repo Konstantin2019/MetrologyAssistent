@@ -132,4 +132,18 @@ const DelStudent = (studentId, setReload) => {
         .catch(err => alert(err.response.data));
 };
 
-export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, LoadToExcel }
+const DelQuestions = (studentId, testName, setReload) => {
+    let url = '/api/admin/del_questions';
+    let params = {
+        student_id: studentId,
+        test_name: testName
+    };
+    axios.post(url, params)
+        .then(_ => {
+            alert(`Вопросы успешно сброшены!`);
+            setReload(reload => reload + 1);
+        })
+        .catch(err => alert(err.response.data));
+};
+
+export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, LoadToExcel, DelQuestions }

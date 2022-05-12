@@ -85,7 +85,7 @@ class RK2_Checker():
             if index == 1:
                 if len(spam) < 1 and len(spam) > 2:
                     raise ContentError
-                student_answer = { 'valid': spam[0], \
+                student_answer = { 'valid': spam[0].lower(), \
                                    'explanation': spam[1] if len(spam) == 2 else 'нет' }
                 if student_answer['valid'] == correct_answer['valid']:
                     return 1, dumps(student_answer, ensure_ascii=False)
@@ -94,7 +94,7 @@ class RK2_Checker():
             elif index == 2:
                 if len(spam) < 3 and len(spam) > 4:
                     raise ContentError
-                student_answer = { 'valid': [spam[0], spam[1], spam[2]], \
+                student_answer = { 'valid': [spam[0].lower(), spam[1].lower(), spam[2].lower()], \
                                    'explanation': spam[3] if len(spam) == 4 else 'нет' }
                 score = 0
                 for k in range(3):
@@ -107,7 +107,7 @@ class RK2_Checker():
             elif index == 3:
                 if len(spam) < 1 and len(spam) > 2:
                     raise ContentError
-                student_answer = { 'valid': spam[0], \
+                student_answer = { 'valid': spam[0].lower(), \
                                    'explanation': spam[1] if len(spam) == 2 else 'нет' }
                 if student_answer['valid'] == correct_answer['valid']:
                     return 1, dumps(student_answer, ensure_ascii=False)

@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { DelQuestions } from "./manager";
 
 const ViewQuestion = () => {
     const { state } = useLocation();
@@ -93,7 +94,15 @@ const ViewQuestion = () => {
                         ))}
                     </tbody>
                 </table>
-                <p className="text-center wow pulse">
+                <p>
+                    <button className="btn btn-outline-danger" onClick={() => {
+                        let yes = window.confirm("Вы уверены, что хотите сбросить вопросы?");
+                        if (yes) { DelQuestions(studentId, test_name, setReload) }
+                    }}>
+                        Сбросить данные
+                    </button>
+                </p>
+                <p>
                     <a className="btn btn-primary btn-lg" role="button" href="/admin_panel">
                         Назад
                     </a>
