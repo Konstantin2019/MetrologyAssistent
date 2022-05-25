@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import { DelQuestions } from "./manager";
+import { DelQuestions, patchAnswer, patchScore } from "./manager";
 
 const ViewQuestion = () => {
     const { state } = useLocation();
@@ -19,28 +19,6 @@ const ViewQuestion = () => {
             .then(sortedQuestions => setQuestions([...sortedQuestions]))
             .catch(err => alert(err.response.data));
     }, [studentId, test_name, reload]);
-    const patchAnswer = (questionId, answer) => {
-        let url = `/api/admin/patch_answer/${questionId}`;
-        let patch = {
-            rk: test_name,
-            answer: answer
-        };
-        axios.post(url, patch)
-            .then(_ => { })
-            .catch(err => alert(err.response.data))
-            .finally(_ => setReload(reload => reload + 1));
-    };
-    const patchScore = (questionId, score) => {
-        let url = `/api/admin/patch_score/${questionId}`;
-        let patch = {
-            rk: test_name,
-            question_score: score
-        };
-        axios.post(url, patch)
-            .then(_ => { })
-            .catch(err => alert(err.response.data))
-            .finally(_ => setReload(reload => reload + 1));
-    };
     return (
         <div className="container" style={{ "marginTop": "1%", "marginBottom": "1%" }}>
             <div className="container-fluid">
@@ -70,7 +48,7 @@ const ViewQuestion = () => {
                                     <button className="btn btn-default" type="button" title="Исправить ответ"
                                         onClick={() => {
                                             let answer = prompt('Введите ответ: ');
-                                            if (![null, ''].includes(answer)) { patchAnswer(question.id, answer) }
+                                            if (![null, ''].includes(answer)) { patchAnswer(question.id, answer, test_name, setReload) }
                                         }}>
                                         <span style={{ "color": "#c9643b" }}>
                                             <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
@@ -83,7 +61,7 @@ const ViewQuestion = () => {
                                     <button className="btn btn-default" type="button" title="Исправить балл"
                                         onClick={() => {
                                             let score = parseInt(prompt('Введите балл: '));
-                                            if (!isNaN(score)) { patchScore(question.id, score) }
+                                            if (!isNaN(score)) { patchScore(question.id, score, test_name, setReload) }
                                         }}>
                                         <span style={{ "color": "#c9643b" }}>
                                             <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>

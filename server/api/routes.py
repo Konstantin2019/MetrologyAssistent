@@ -168,6 +168,19 @@ def init_controllers(api):
         except (KeyError, ValueError):
             return make_response('Невалидные данные для изменения ответа!', 400)
 
+    @api.route('/api/admin/patch_email/<int:student_id>', methods=['POST'])
+    def patch_email(student_id):
+        data = request.get_json()
+        try:
+            patch = {'email': data['email']}
+            returned_id = sql_provider.update(Student, student_id, patch)
+            if returned_id:
+                return make_response(json.dumps(returned_id), 200)
+            else:
+                return make_response('Передан неверный id студента!', 400)
+        except:
+            return make_response('Невалидные данные для обновления email!', 400)
+
     @api.route('/api/admin/del_questions', methods=['POST'])
     def del_questions():
         data = request.get_json()

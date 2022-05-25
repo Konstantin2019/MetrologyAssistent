@@ -7,8 +7,8 @@ import AuthUserForm from '../common/auth_form';
 import GroupSelector from '../common/group_selector';
 import Filter from './filter';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel } from './manager';
+import { faBan, faMinus, faPlus, faPen } from '@fortawesome/free-solid-svg-icons';
+import { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, patchEmail } from './manager';
 import { Sort, GetClassNameFor } from './sorter';
 
 const EditStudent = (props) => {
@@ -86,7 +86,7 @@ const EditStudent = (props) => {
                     <AccordionHeader>Загрузить студентов из файла</AccordionHeader>
                     <AccordionBody>
                         <label htmlFor="import" className="btn btn-outline-primary">Загрузить студентов</label>
-                        <input id="import" type="file" style={{ "visibility": "hidden", "maxWidth":"0" }}
+                        <input id="import" type="file" style={{ "visibility": "hidden", "maxWidth": "0" }}
                             onChange={(e) => {
                                 let studentsPromise = ReadExcel(e);
                                 AddStudents(studentsPromise, groups, setReload);
@@ -120,6 +120,13 @@ const EditStudent = (props) => {
                                             </button>
                                         </th>
                                         <th scope="col">
+                                            <button className={GetClassNameFor('email', sortConfig)}
+                                                onClick={() => Sort(filteredStudents, 'email', sortConfig, setSortConfig)}>
+                                                Эл.почта
+                                            </button>
+                                        </th>
+                                        <th scope="col"></th>
+                                        <th scope="col">
                                             <button className={GetClassNameFor('group_id', sortConfig)}
                                                 onClick={() => Sort(filteredStudents, 'group_id', sortConfig, setSortConfig)}>
                                                 Группа
@@ -135,6 +142,18 @@ const EditStudent = (props) => {
                                             <td>{student.surname}</td>
                                             <td>{student.name}</td>
                                             <td>{student.patronymic}</td>
+                                            <td>{student.email}</td>
+                                            <td>
+                                                <button className="btn btn-default" type="button" title="Исправить email'"
+                                                    onClick={() => {
+                                                        let email = prompt('Введите ответ: ');
+                                                        if (![null, ''].includes(email)) { patchEmail(student.id, email, setReload) }
+                                                    }}>
+                                                    <span style={{ "color": "#c9643b" }}>
+                                                        <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
+                                                    </span>
+                                                </button>
+                                            </td>
                                             <td>{groups.filter(g => g.id === student.group_id).map(g => g.group_name)[0]}</td>
                                             <td>
                                                 <button className="btn btn-default" type="button" title="Удалить"

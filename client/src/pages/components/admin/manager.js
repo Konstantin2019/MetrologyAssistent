@@ -147,4 +147,36 @@ const DelQuestions = (studentId, testName, setReload) => {
         .catch(err => alert(err.response.data));
 };
 
-export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, LoadToExcel, DelQuestions }
+const patchAnswer = (questionId, answer, testName, setReload) => {
+    let url = `/api/admin/patch_answer/${questionId}`;
+    let patch = {
+        rk: testName,
+        answer: answer
+    };
+    axios.post(url, patch)
+        .then(_ => { })
+        .catch(err => alert(err.response.data))
+        .finally(_ => setReload(reload => reload + 1));
+};
+
+const patchScore = (questionId, score, testName, setReload) => {
+    let url = `/api/admin/patch_score/${questionId}`;
+    let patch = {
+        rk: testName,
+        question_score: score
+    };
+    axios.post(url, patch)
+        .then(_ => { })
+        .catch(err => alert(err.response.data))
+        .finally(_ => setReload(reload => reload + 1));
+};
+
+const patchEmail = (studentId, email, setReload) => {
+    let url = `/api/admin/patch_email/${studentId}`;
+    axios.post(url, { email: email })
+        .then(_ => { })
+        .catch(err => alert(err.response.data))
+        .finally(_ => setReload(reload => reload + 1));
+};
+
+export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, LoadToExcel, DelQuestions, patchAnswer, patchScore, patchEmail }
