@@ -144,7 +144,7 @@ const EditStudent = (props) => {
                                             <td>{student.patronymic}</td>
                                             <td>{student.email}</td>
                                             <td>
-                                                <button className="btn btn-default" type="button" title="Исправить email'"
+                                                <button className="btn btn-default" type="button" title="Исправить email"
                                                     onClick={() => {
                                                         let email = prompt('Введите ответ: ');
                                                         if (![null, ''].includes(email)) { patchEmail(student.id, email, setReload) }
