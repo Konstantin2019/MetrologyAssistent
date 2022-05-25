@@ -5,7 +5,7 @@ from flask.helpers import make_response
 from datetime import datetime
 from api.modules.sheduler import do_on_complete
 from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json
-from api.models.shemas import Group, Student, Year, RK1, RK2
+from api.models.shemas import Group, Student, Year, RK1, RK2, Test
 from api import sql_provider, store
 from api.modules.task_selector import select
 from api.modules.custom_exceptions import ContentError
@@ -123,6 +123,9 @@ def init_controllers(api):
         elif rk and rk == 'rk2':
             rk2 = student.rk2_questions
             jsonified_rk = [question_to_json(question) for question in rk2]
+        elif rk and rk == 'test':
+            test = student.test_questions
+            jsonified_rk = [question_to_json(question) for question in test]
         return make_response(json.dumps(jsonified_rk), 200)
 
     @api.route('/api/admin/del_student/<int:student_id>', methods=['DELETE'])
@@ -138,8 +141,10 @@ def init_controllers(api):
         data = request.get_json()
         try:
             patch = {'score': int(data['question_score'])}
-            test_cls = RK1 if data['rk'] == 'rk1' else RK2
-            returned_id = sql_provider.update(test_cls, question_id, patch)
+            rk_cls = RK1 if data['rk'] == 'rk1' \
+                     else RK2 if data['rk'] == 'rk2' \
+                     else Test
+            returned_id = sql_provider.update(rk_cls, question_id, patch)
             if returned_id:
                 return make_response(json.dumps(returned_id), 200)
             else:
@@ -152,7 +157,9 @@ def init_controllers(api):
         data = request.get_json()
         try:
             patch = {'student_answer': data['answer']}
-            rk_cls = RK1 if data['rk'] == 'rk1' else RK2
+            rk_cls = RK1 if data['rk'] == 'rk1' \
+                     else RK2 if data['rk'] == 'rk2' \
+                     else Test
             returned_id = sql_provider.update(rk_cls, question_id, patch)
             if returned_id:
                 return make_response(json.dumps(returned_id), 200)
@@ -167,17 +174,23 @@ def init_controllers(api):
         try:
             student_id = data['student_id']
             test_name = data['test_name']
-            rk_cls = RK1 if test_name == 'rk1' else RK2
+            rk_cls = RK1 if test_name == 'rk1' \
+                     else RK2 if test_name == 'rk2' \
+                     else Test
             questions = sql_provider.query(rk_cls).filter_by(student_id=student_id).all()
             questions_ids = [question.id for question in questions]
             returned_ids = sql_provider.delete_many(rk_cls, questions_ids)
             if returned_ids:
                 patch = {'rk1_start_time': None} \
                         if test_name == 'rk1' \
-                        else {'rk2_start_time': None}
+                        else {'rk2_start_time': None} \
+                        if test_name == 'rk2' \
+                        else {'test_start_time': None}
                 patch.update({'rk1_finish_time': None} \
                         if test_name == 'rk1' \
-                        else {'rk2_finish_time': None})
+                        else {'rk2_finish_time': None} \
+                        if test_name == 'rk2' \
+                        else {'test_finish_time': None})
                 sql_provider.update(Student, student_id, patch)
                 return make_response(json.dumps(returned_ids), 200)
             else:
@@ -223,14 +236,24 @@ def init_controllers(api):
         student = sql_provider.get(Student, student_id)
         if not student:
             return make_response('Студент не найден!', 404)
-        start_time = student.rk1_start_time if rk_choice == 'rk1' else student.rk2_start_time
-        finish_time = student.rk1_finish_time if rk_choice == 'rk1' else student.rk2_finish_time
+        start_time = student.rk1_start_time if rk_choice == 'rk1' \
+                     else student.rk2_start_time if rk_choice == 'rk2' \
+                     else student.test_start_time
+        finish_time = student.rk1_finish_time if rk_choice == 'rk1' \
+                      else student.rk2_finish_time if rk_choice == 'rk2' \
+                      else student.test_finish_time
         if finish_time:
             return make_response('Рубежный контроль уже выполнен!', 500)
-        interval = store['time_for_rk1'] if rk_choice == 'rk1' else store['time_for_rk2']
-        checker, task1_loader, task2_loader = select(teacher)
-        rk_loader = task1_loader if rk_choice == 'rk1' else task2_loader
-        rk_cls = RK1 if rk_choice == 'rk1' else RK2
+        interval = store['time_for_rk1'] if rk_choice == 'rk1' \
+                   else store['time_for_rk2'] if rk_choice == 'rk2' \
+                   else store['time_for_test']
+        checker, task1_loader, task2_loader, test_loader = select(teacher)
+        rk_loader = task1_loader if rk_choice == 'rk1' \
+                    else task2_loader if rk_choice == 'rk2' \
+                    else test_loader
+        rk_cls = RK1 if rk_choice == 'rk1' \
+                 else RK2 if rk_choice == 'rk2' \
+                 else Test
         if request.method == 'GET':
             start_time, questions = load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time, finish_time)
             if not start_time and not questions:
@@ -258,7 +281,9 @@ def init_controllers(api):
 
     #region task_funcs
     def load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time=None, finish_time=None):
-        file_name = 'rk1.json' if rk_choice == 'rk1' else 'rk2.json'
+        file_name = 'rk1.json' if rk_choice == 'rk1' \
+                    else 'rk2.json' if rk_choice == 'rk2' \
+                    else 'test.json'
         if finish_time:
             return []
         if not start_time:
@@ -270,11 +295,13 @@ def init_controllers(api):
                                     image_url=f'/api/download/{teacher}/images/{rk_choice}/{i+1}.jpg')
                              for i, (text, answer) in enumerate(rk.items())]
                 sql_provider.set_many(questions)
-                time_patch = {'rk1_start_time': datetime.now().isoformat()} \
-                               if rk_choice == 'rk1' \
-                               else {'rk2_start_time': datetime.now().isoformat()}
+                time_patch = {'rk1_start_time': datetime.now().isoformat()} if rk_choice == 'rk1' \
+                             else {'rk2_start_time': datetime.now().isoformat()} if rk_choice == 'rk2' \
+                             else {'test_start_time': datetime.now().isoformat()}
                 sql_provider.update(Student, student.id, time_patch)
-                start_time = time_patch['rk1_start_time'] if rk_choice == 'rk1' else time_patch['rk2_start_time']
+                start_time = time_patch['rk1_start_time'] if rk_choice == 'rk1' \
+                             else time_patch['rk2_start_time'] if rk_choice == 'rk2' \
+                             else time_patch['test_start_time']
             except:
                 return None, None
         else:
@@ -288,9 +315,9 @@ def init_controllers(api):
             if not question:
                 raise ContentError
             correct_answer = question.correct_answer
-            score, answer = checker.RK1_Checker(correct_answer, student_answer)(index) \
-                            if rk_choice == 'rk1' \
-                            else checker.RK2_Checker(correct_answer, student_answer)(index)
+            score, answer = checker.RK1_Checker(correct_answer, student_answer)(index) if rk_choice == 'rk1' \
+                            else checker.RK2_Checker(correct_answer, student_answer)(index) if  rk_choice == 'rk2' \
+                            else checker.Test_Checker(correct_answer, student_answer)(index)
             sql_provider.update(rk_cls, question_id, {'student_answer': answer, 'score': score})
             return question_id
         except (ValueError, ContentError):

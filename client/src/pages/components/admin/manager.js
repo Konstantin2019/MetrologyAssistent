@@ -78,7 +78,8 @@ const LoadToExcel = (students, fileName) => {
             Имя: student.name,
             Отчество: student.patronymic,
             РК1: student.rk1_score,
-            РК2: student.rk2_score
+            РК2: student.rk2_score,
+            Зачёт: student.test_score
         };
         return studentToLoad;
     });

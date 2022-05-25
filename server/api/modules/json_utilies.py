@@ -1,5 +1,5 @@
 from flask import jsonify
-from api.models.shemas import Group, Student, Year, RK1, RK2
+from api.models.shemas import Group, Student, Year, RK1, RK2, Test
 
 def year_to_json(year: Year):
     return jsonify(id=year.id, year_name=year.year_name) \
@@ -13,10 +13,10 @@ def student_to_json(student: Student):
     return jsonify(id=student.id, surname=student.surname, name=student.name, \
                    patronymic=student.patronymic, email=student.email, \
                    rk1_score=student.rk1_score, rk2_score=student.rk2_score, \
-                   group_id=student.group_id) \
+                   test_score=student.test_score, group_id=student.group_id) \
                    .data.decode('utf-8')
 
-def question_to_json(question: RK1 or RK2):
+def question_to_json(question: RK1 or RK2 or Test):
     return jsonify(id=question.id, index=question.index, question=question.question, \
                    student_answer=question.student_answer, \
                    correct_answer=question.correct_answer, \

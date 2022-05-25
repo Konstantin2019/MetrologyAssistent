@@ -39,6 +39,9 @@ class Student(db.Model):
     rk2_questions = db.relationship('RK2', backref='student', lazy=True, cascade="all, delete", passive_deletes=True)
     rk2_start_time = db.Column(db.String(32), nullable=True)
     rk2_finish_time = db.Column(db.String(32), nullable=True)
+    test_questions = db.relationship('Test', backref='student', lazy=True, cascade="all, delete", passive_deletes=True)
+    test_start_time = db.Column(db.String(32), nullable=True)
+    test_finish_time = db.Column(db.String(32), nullable=True)
 
     @hybrid_property
     def rk1_score(self):
@@ -47,6 +50,10 @@ class Student(db.Model):
     @hybrid_property
     def rk2_score(self):
         return sum(rk2_question.score for rk2_question in self.rk2_questions)
+
+    @hybrid_property
+    def test_score(self):
+        return sum(test_question.score for test_question in self.test_questions)
 
     def __repr__(self):
         return f'<surname {self.surname}>' 
@@ -68,6 +75,21 @@ class RK1(db.Model):
 
 class RK2(db.Model):
     __tablename__ = 'rk2'
+    id = db.Column(db.Integer, primary_key=True)
+    index = db.Column(db.Integer, nullable=False)
+    question = db.Column(db.Text, nullable=True)
+    unique = synonym('question')
+    student_answer = db.Column(db.Text, nullable=True)
+    correct_answer = db.Column(db.Text, nullable=True)
+    score = db.Column(db.Integer, nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'), nullable=False)
+
+    def __repr__(self):
+        return f'<question : {self.question}, correct_answer : {self.correct_answer}>'
+
+class Test(db.Model):
+    __tablename__ = 'test'
     id = db.Column(db.Integer, primary_key=True)
     index = db.Column(db.Integer, nullable=False)
     question = db.Column(db.Text, nullable=True)

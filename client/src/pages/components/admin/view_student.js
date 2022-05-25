@@ -7,7 +7,7 @@ import GetData from '../../../local_storage';
 const ViewStudent = ({ students }) => {
     const navigate = useNavigate();
     const [tests] = useState(GetData().tests);
-    useEffect(() => { }, [students]);
+    useEffect(() => { console.log(students) }, [students]);
     return (
         <table className="table">
             <thead>
@@ -18,6 +18,7 @@ const ViewStudent = ({ students }) => {
                     <th scope="col">Отчество</th>
                     <th scope="col">Результат РК1</th>
                     <th scope="col">Результат РК2</th>
+                    <th scope="col">Результат Зачёта</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,17 +30,17 @@ const ViewStudent = ({ students }) => {
                         <td>{student.patronymic}</td>
                         <td>
                             <button className="btn btn-default" type="button" title="Просмотреть"
-                                onClick={() => navigate(`/admin_panel/rk1/${student.id}`, 
-                                {
-                                    state: {
-                                        studentId: student.id,
-                                        surname: student.surname,
-                                        name: student.name,
-                                        patronymic: student.patronymic,
-                                        test_name: tests[0].test_name,
-                                        test_view: tests[0].test_view
-                                    }
-                                })}>
+                                onClick={() => navigate(`/admin_panel/rk1/${student.id}`,
+                                    {
+                                        state: {
+                                            studentId: student.id,
+                                            surname: student.surname,
+                                            name: student.name,
+                                            patronymic: student.patronymic,
+                                            test_name: tests[0].test_name,
+                                            test_view: tests[0].test_view
+                                        }
+                                    })}>
                                 <span style={{ "color": "purple" }}>
                                     <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                 </span>
@@ -48,22 +49,41 @@ const ViewStudent = ({ students }) => {
                         </td>
                         <td>
                             <button className="btn btn-default" type="button" title="Просмотреть"
-                                onClick={() => navigate(`/admin_panel/rk2/${student.id}`, 
-                                {
-                                    state: {
-                                        studentId: student.id,
-                                        surname: student.surname,
-                                        name: student.name,
-                                        patronymic: student.patronymic,
-                                        test_name: tests[1].test_name,
-                                        test_view: tests[1].test_view
-                                    }
-                                })} >
+                                onClick={() => navigate(`/admin_panel/rk2/${student.id}`,
+                                    {
+                                        state: {
+                                            studentId: student.id,
+                                            surname: student.surname,
+                                            name: student.name,
+                                            patronymic: student.patronymic,
+                                            test_name: tests[1].test_name,
+                                            test_view: tests[1].test_view
+                                        }
+                                    })} >
                                 <span style={{ color: "purple" }}>
                                     <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
                                 </span>
                             </button>
                             <span style={{ "marginLeft": "5%" }}>{student.rk2_score}</span>
+                        </td>
+                        <td>
+                            <button className="btn btn-default" type="button" title="Просмотреть"
+                                onClick={() => navigate(`/admin_panel/test/${student.id}`,
+                                    {
+                                        state: {
+                                            studentId: student.id,
+                                            surname: student.surname,
+                                            name: student.name,
+                                            patronymic: student.patronymic,
+                                            test_name: tests[2].test_name,
+                                            test_view: tests[2].test_view
+                                        }
+                                    })} >
+                                <span style={{ color: "purple" }}>
+                                    <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                                </span>
+                            </button>
+                            <span style={{ "marginLeft": "5%" }}>{student.test_score}</span>
                         </td>
                     </tr>
                 ))}

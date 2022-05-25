@@ -9,6 +9,11 @@ export default function GetData() {
             id: 2,
             test_name: 'rk2',
             test_view: 'РК№2'
+        },
+        {
+            id: 3,
+            test_name: 'test',
+            test_view: 'Зачёт'
         }
     ];
     const teachers = [
@@ -18,7 +23,7 @@ export default function GetData() {
             teacher_view: 'Потапов К.Г.'
         },
         {
-            id: 2, 
+            id: 2,
             teacher_name: 'tumakova',
             teacher_view: 'Тумакова Е.В.'
         }
