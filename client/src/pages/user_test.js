@@ -13,7 +13,7 @@ const UserTest = () => {
     const dbQuestions = useRef([]);
     const timerId = useRef(null);
     const images = useRef([]);
-    const [url] = useState('/api' + window.location.pathname);
+    const [url] = useState('/api/user' + window.location.pathname);
     const [remainingTime, setRemainingTime] = useState(60);
     const [currentPage, setCurrentPage] = useState(0);
     const [questionsPerPage] = useState(1);

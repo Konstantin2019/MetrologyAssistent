@@ -39,7 +39,10 @@ const AdminPanel = () => {
                     }
                 }
             })
-            .catch(_ => navigate('/admin_auth'));
+            .catch(err => {
+                if (err.response.status === 401) { navigate('/admin_auth') }
+                else { alert(err.response.data) }
+            });
     }, [dbYears, dbGroups, dbStudents, reload, navigate]);
     const groups = useMemo(
         () => dbGroups.current.filter(g => g.year_id === selectedYear.id),

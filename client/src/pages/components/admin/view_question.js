@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 import { DelQuestions, patchAnswer, patchScore } from "./manager";
 
 const ViewQuestion = () => {
@@ -10,6 +11,7 @@ const ViewQuestion = () => {
     const { studentId, surname, name, patronymic, test_name, test_view } = state;
     const [questions, setQuestions] = useState([]);
     const [reload, setReload] = useState(0);
+    const navigate = useNavigate();
     useEffect(() => {
         let url = `/api/admin/view_student/${studentId}`;
         axios.get(url, { params: { rk: test_name } })
@@ -17,7 +19,10 @@ const ViewQuestion = () => {
             .then(data => data.map(json => JSON.parse(json)))
             .then(questions => questions.sort((q1, q2) => q1.index > q2.index ? 1 : -1))
             .then(sortedQuestions => setQuestions([...sortedQuestions]))
-            .catch(err => alert(err.response.data));
+            .catch(err => {
+                if (err.response.status === 401) { navigate('/admin_auth') }
+                else { alert(err.response.data) }
+            });
     }, [studentId, test_name, reload]);
     return (
         <div className="container" style={{ "marginTop": "1%", "marginBottom": "1%" }}>

@@ -1,6 +1,9 @@
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+
+const navigate = useNavigate();
 
 const AddGroup = (groupName, setGroupName, setReload) => {
     let url = '/api/admin/create_group';
@@ -11,7 +14,10 @@ const AddGroup = (groupName, setGroupName, setReload) => {
             setGroupName('');
             setReload(reload => reload + 1);
         })
-        .catch(err => alert(err.response.data));
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const DelGroup = (groups, groupName, setGroupName, setReload) => {
@@ -24,7 +30,10 @@ const DelGroup = (groups, groupName, setGroupName, setReload) => {
             setGroupName('');
             setReload(reload => reload + 1);
         })
-        .catch(err => alert(err.response.data));
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload) => {
@@ -49,7 +58,10 @@ const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymi
             setEmail('');
             setReload(reload => reload + 1);
         })
-        .catch(err => alert(err.response.data));
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const ReadExcel = (e) => {
@@ -118,7 +130,10 @@ const AddStudents = (studentsPromise, groups, setReload) => {
                 alert(`Студенты c ids = [${studentsIds}] успешно добавлены или уже существуют!`);
                 setReload(reload => reload + 1);
             })
-            .catch(err => alert(err.response.data));
+            .catch(err => {
+                if (err.response.status === 401) { navigate('/admin_auth') }
+                else { alert(err.response.data) }
+            });
     }).catch(err => alert(err.message));
 };
 
@@ -130,7 +145,10 @@ const DelStudent = (studentId, setReload) => {
             alert(`Студент c id = ${studentId} успешно удален!`);
             setReload(reload => reload + 1);
         })
-        .catch(err => alert(err.response.data));
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const DelQuestions = (studentId, testName, setReload) => {
@@ -144,7 +162,10 @@ const DelQuestions = (studentId, testName, setReload) => {
             alert(`Вопросы успешно сброшены!`);
             setReload(reload => reload + 1);
         })
-        .catch(err => alert(err.response.data));
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const patchAnswer = (questionId, answer, testName, setReload) => {
@@ -154,9 +175,11 @@ const patchAnswer = (questionId, answer, testName, setReload) => {
         answer: answer
     };
     axios.post(url, patch)
-        .then(_ => { })
-        .catch(err => alert(err.response.data))
-        .finally(_ => setReload(reload => reload + 1));
+        .then(_ => setReload(reload => reload + 1))
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const patchScore = (questionId, score, testName, setReload) => {
@@ -166,17 +189,21 @@ const patchScore = (questionId, score, testName, setReload) => {
         question_score: score
     };
     axios.post(url, patch)
-        .then(_ => { })
-        .catch(err => alert(err.response.data))
-        .finally(_ => setReload(reload => reload + 1));
+        .then(_ => setReload(reload => reload + 1))
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 const patchEmail = (studentId, email, setReload) => {
     let url = `/api/admin/patch_email/${studentId}`;
     axios.post(url, { email: email })
-        .then(_ => { })
-        .catch(err => alert(err.response.data))
-        .finally(_ => setReload(reload => reload + 1));
+        .then(_ => setReload(reload => reload + 1))
+        .catch(err => {
+            if (err.response.status === 401) { navigate('/admin_auth') }
+            else { alert(err.response.data) }
+        });
 };
 
 export { AddGroup, AddStudent, AddStudents, DelGroup, DelStudent, ReadExcel, LoadToExcel, DelQuestions, patchAnswer, patchScore, patchEmail }

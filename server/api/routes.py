@@ -3,64 +3,56 @@ import json
 from flask import jsonify, request, send_from_directory, session
 from flask.helpers import make_response
 from datetime import datetime
-from api.modules.sheduler import do_on_complete
+from api.modules.support_func import load_task, finish_task, do_on_complete
 from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json
 from api.models.shemas import Group, Student, Year, RK1, RK2, Test
-from api import sql_provider, store
+from api import sql_provider, store, admin, user, entry
 from api.modules.task_selector import select
 from api.modules.custom_exceptions import ContentError
 
-def init_controllers(api):
+def init_endpoints(api):
 
     #region Admin
-    def auth_middleware():
+    @admin.before_request
+    def admin_middleware():
         admin_login = request.cookies.get('admin_login')
         admin_password = request.cookies.get('admin_password')
-        if not admin_login and not admin_password:
-            return False
-        correct_hash_code = sha1(str.encode(api.config['ADMIN_PASSWORD'])).hexdigest()
-        if admin_login != api.config['ADMIN_LOGIN'] and admin_password != correct_hash_code:
-            return False
-        return True
+        if admin_login and admin_password:
+            correct_hash_code = sha1(str.encode(api.config['ADMIN_PASSWORD'])).hexdigest()
+            if admin_login == api.config['ADMIN_LOGIN'] and admin_password == correct_hash_code:
+                return None
+        return make_response('Не авторизован!', 401)
 
-    @api.route('/api/admin_auth', methods=['POST'])
+    @entry.route('/admin_auth', methods=['POST'])
     def admin_auth():
         credentials = request.get_json()
         try:
             input_hash_code = sha1(str.encode(credentials['password'])).hexdigest()
             correct_hash_code = sha1(str.encode(api.config['ADMIN_PASSWORD'])).hexdigest() 
             if credentials['login'] == api.config['ADMIN_LOGIN'] and input_hash_code == correct_hash_code:
-                admin_login = request.cookies.get('admin_login')
-                admin_password = request.cookies.get('admin_password')
-                if admin_login and admin_password:
-                    return make_response('ОК', 200)
-                else:
-                    response = make_response('ОК', 200)
-                    response.set_cookie('admin_login', credentials['login'])
-                    response.set_cookie('admin_password', correct_hash_code)
-                    return response
+                response = make_response('ОК', 200)
+                response.set_cookie('admin_login', credentials['login'])
+                response.set_cookie('admin_password', correct_hash_code)
+                session['admin_status'] = 'Authorized'
+                return response
             else:
                 return make_response('Неверная пара логин/пароль!', 401)
-        except (TypeError, KeyError):
+        except KeyError:
             return make_response('', 400)  
 
-    @api.route('/api/admin', methods=['GET'])
+    @admin.route('/', methods=['GET'])
     def admin_index():
-        success = auth_middleware()
-        if success:
-            years = sql_provider.get_all(Year)
-            groups = sql_provider.get_all(Group)
-            students = sql_provider.get_all(Student)
-            jsonfied_years = [year_to_json(year) for year in years]
-            jsonfied_groups = [group_to_json(group) for group in groups]
-            jsonfied_students = [student_to_json(student) for student in students]
-            return make_response(json.dumps({'years': jsonfied_years, 
-                                             'groups': jsonfied_groups, 
-                                             'students': jsonfied_students}), 200)
-        else:
-            return make_response('Не удалось авторизоваться!', 401)
+        years = sql_provider.get_all(Year)
+        groups = sql_provider.get_all(Group)
+        students = sql_provider.get_all(Student)
+        jsonfied_years = [year_to_json(year) for year in years]
+        jsonfied_groups = [group_to_json(group) for group in groups]
+        jsonfied_students = [student_to_json(student) for student in students]
+        return make_response(json.dumps({'years': jsonfied_years, 
+                                         'groups': jsonfied_groups, 
+                                         'students': jsonfied_students}), 200)           
     
-    @api.route('/api/admin/create_group', methods=['POST'])
+    @admin.route('/create_group', methods=['POST'])
     def create_group():
         data = request.get_json()
         try:
@@ -79,7 +71,7 @@ def init_controllers(api):
         except (KeyError, ContentError):
             return make_response('Невалидные данные для создания группы!', 400)   
     
-    @api.route('/api/admin/del_group/<int:group_id>', methods=['DELETE'])
+    @admin.route('/del_group/<int:group_id>', methods=['DELETE'])
     def del_group(group_id):
         returned_id = sql_provider.delete(Group, group_id)
         if returned_id:
@@ -87,7 +79,7 @@ def init_controllers(api):
         else:
             return make_response('Передан неверный id группы!', 400)
 
-    @api.route('/api/admin/add_students', methods=['POST'])
+    @admin.route('/add_students', methods=['POST'])
     def add_students():
         data = request.get_json()
         try:
@@ -108,7 +100,7 @@ def init_controllers(api):
         except (KeyError, ContentError):
             return make_response('Невалидные данные для создания студента(ов)!', 400)    
     
-    @api.route('/api/admin/view_student/<int:student_id>', methods=['GET'])
+    @admin.route('/view_student/<int:student_id>', methods=['GET'])
     def view_student(student_id):
         rk = request.args.get('rk')
         if not rk:
@@ -128,7 +120,7 @@ def init_controllers(api):
             jsonified_rk = [question_to_json(question) for question in test]
         return make_response(json.dumps(jsonified_rk), 200)
 
-    @api.route('/api/admin/del_student/<int:student_id>', methods=['DELETE'])
+    @admin.route('/del_student/<int:student_id>', methods=['DELETE'])
     def del_student(student_id):
         returned_id = sql_provider.delete(Student, student_id)
         if returned_id:
@@ -136,7 +128,7 @@ def init_controllers(api):
         else:
             return make_response('Передан неверный id студента!', 400)
 
-    @api.route('/api/admin/patch_score/<int:question_id>', methods=['POST'])
+    @admin.route('/patch_score/<int:question_id>', methods=['POST'])
     def patch_score(question_id):
         data = request.get_json()
         try:
@@ -152,7 +144,7 @@ def init_controllers(api):
         except (KeyError, ValueError):
             return make_response('Невалидные данные для обновления баллов!', 400)
 
-    @api.route('/api/admin/patch_answer/<int:question_id>', methods=['POST'])
+    @admin.route('/patch_answer/<int:question_id>', methods=['POST'])
     def patch_answer(question_id):
         data = request.get_json()
         try:
@@ -168,7 +160,7 @@ def init_controllers(api):
         except (KeyError, ValueError):
             return make_response('Невалидные данные для изменения ответа!', 400)
 
-    @api.route('/api/admin/patch_email/<int:student_id>', methods=['POST'])
+    @admin.route('/patch_email/<int:student_id>', methods=['POST'])
     def patch_email(student_id):
         data = request.get_json()
         try:
@@ -181,7 +173,7 @@ def init_controllers(api):
         except:
             return make_response('Невалидные данные для обновления email!', 400)
 
-    @api.route('/api/admin/del_questions', methods=['POST'])
+    @admin.route('/del_questions', methods=['POST'])
     def del_questions():
         data = request.get_json()
         try:
@@ -213,11 +205,7 @@ def init_controllers(api):
     #endregion 
 
     #region Student
-    @api.route('/api/download/<path:filename>', methods=['GET'])
-    def download(filename):
-        return send_from_directory(api.config['UPLOAD_FOLDER'], filename)
-
-    @api.route('/api/for_auth', methods=['GET'])
+    @entry.route('/for_auth', methods=['GET'])
     def for_auth():
         current_year = datetime.now().year
         year = sql_provider.query(Year).filter_by(year_name=current_year).scalar()
@@ -225,16 +213,16 @@ def init_controllers(api):
         if year and len(groups) > 0:
             jsonified_year = year_to_json(year)
             jsonified_groups = [group_to_json(group) for group in groups]
-            session['auth_success'] = True
+            session['group_load'] = True
             return make_response(json.dumps({'year': jsonified_year, 
                                              'groups': jsonified_groups}), 200)
         else:
-            session['auth_success'] = False
+            session['group_load'] = False
             return make_response('Отсутствуют учебные группы!', 500)
 
-    @api.route('/api/user_auth', methods=['POST'])
+    @entry.route('/user_auth', methods=['POST'])
     def user_auth():
-        if not session['auth_success']:
+        if not session['group_load']:
             return make_response('Аутентификация невозможна!', 500)
         data = request.get_json()
         if 'email' in data and data['email']:
@@ -244,7 +232,11 @@ def init_controllers(api):
                 return make_response(json.dumps(student.id), 200)
         return make_response('Студент не найден!', 404)
 
-    @api.route('/api/user_test/<int:student_id>/<string:rk_choice>/<string:teacher>', methods=['GET', 'POST'])
+    @user.route('/download/<path:filename>', methods=['GET'])
+    def download(filename):
+        return send_from_directory(api.config['UPLOAD_FOLDER'], filename)
+
+    @user.route('/test/<int:student_id>/<string:rk_choice>/<string:teacher>', methods=['GET', 'POST'])
     def test(student_id: int, rk_choice: str, teacher: str):
         student = sql_provider.get(Student, student_id)
         if not student:
@@ -291,50 +283,4 @@ def init_controllers(api):
                 return make_response('Ответ принят!', 200)
             except (KeyError, ContentError):
                 return make_response('Ответ не валиден!', 400)
-
-    #region task_funcs
-    def load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time=None, finish_time=None):
-        file_name = 'rk1.json' if rk_choice == 'rk1' \
-                    else 'rk2.json' if rk_choice == 'rk2' \
-                    else 'test.json'
-        if finish_time:
-            return []
-        if not start_time:
-            try:
-                rk_path = api.config['UPLOAD_FOLDER'] + f'/{teacher}/task_template/{file_name}'
-                rk = rk_loader.load_tasks(rk_path)
-                questions = [rk_cls(index=i+1, question=text, correct_answer=answer, \
-                                    student_id=student.id, score=0, \
-                                    image_url=f'/api/download/{teacher}/images/{rk_choice}/{i+1}.jpg')
-                             for i, (text, answer) in enumerate(rk.items())]
-                sql_provider.set_many(questions)
-                time_patch = {'rk1_start_time': datetime.now().isoformat()} if rk_choice == 'rk1' \
-                             else {'rk2_start_time': datetime.now().isoformat()} if rk_choice == 'rk2' \
-                             else {'test_start_time': datetime.now().isoformat()}
-                sql_provider.update(Student, student.id, time_patch)
-                start_time = time_patch['rk1_start_time'] if rk_choice == 'rk1' \
-                             else time_patch['rk2_start_time'] if rk_choice == 'rk2' \
-                             else time_patch['test_start_time']
-            except:
-                return None, None
-        else:
-            questions = sql_provider.query(rk_cls).filter_by(student_id=student.id).all()
-        return start_time, questions
-
-    def finish_task(question_id, question_index, student_answer, checker, rk_choice, rk_cls):
-        try:
-            index = int(question_index)
-            question = sql_provider.get(rk_cls, question_id)
-            if not question:
-                raise ContentError
-            correct_answer = question.correct_answer
-            score, answer = checker.RK1_Checker(correct_answer, student_answer)(index) if rk_choice == 'rk1' \
-                            else checker.RK2_Checker(correct_answer, student_answer)(index) if  rk_choice == 'rk2' \
-                            else checker.Test_Checker(correct_answer, student_answer)(index)
-            sql_provider.update(rk_cls, question_id, {'student_answer': answer, 'score': score})
-            return question_id
-        except (ValueError, ContentError):
-            return None
-    #endregion
-        
     #endregion

@@ -16,7 +16,7 @@ function App() {
         <Route path="/user_auth" element={<UserAuth />} />
         <Route path="/admin_auth" element={<AdminAuth />} />
         <Route path="/admin_panel" element={<AdminPanel />} />
-        <Route path="/user_test/:studentId/:testType/:teacher" element={<UserTest />} />
+        <Route path="/test/:studentId/:testType/:teacher" element={<UserTest />} />
         <Route path="/admin_panel/:testType/:studentId" element={<ViewQuestion />} />
       </Routes>
     </Router>
