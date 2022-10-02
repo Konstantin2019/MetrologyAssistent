@@ -1,11 +1,8 @@
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
 
-const navigate = useNavigate();
-
-const AddGroup = (groupName, setGroupName, setReload) => {
+const AddGroup = (groupName, setGroupName, setReload, navigate) => {
     let url = '/api/admin/create_group';
     axios.post(url, { group_name: groupName })
         .then(res => res.data)
@@ -20,7 +17,7 @@ const AddGroup = (groupName, setGroupName, setReload) => {
         });
 };
 
-const DelGroup = (groups, groupName, setGroupName, setReload) => {
+const DelGroup = (groups, groupName, setGroupName, setReload, navigate) => {
     let group = groups.filter(g => g.group_name === groupName)[0];
     let url = `/api/admin/del_group/${group.id}`;
     axios.delete(url)
@@ -36,7 +33,7 @@ const DelGroup = (groups, groupName, setGroupName, setReload) => {
         });
 };
 
-const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload) => {
+const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload, navigate) => {
     if (patronymic === (undefined || null)) {
         patronymic = ''
     }
@@ -105,7 +102,7 @@ const LoadToExcel = (students, fileName) => {
     FileSaver.saveAs(result, fileName + fileExtension);
 };
 
-const AddStudents = (studentsPromise, groups, setReload) => {
+const AddStudents = (studentsPromise, groups, setReload, navigate) => {
     studentsPromise.then(records => {
         let students = records.map(record => {
             let group_id = groups.filter(g => g.group_name === record.Группа).map(g => g.id)[0];
@@ -137,7 +134,7 @@ const AddStudents = (studentsPromise, groups, setReload) => {
     }).catch(err => alert(err.message));
 };
 
-const DelStudent = (studentId, setReload) => {
+const DelStudent = (studentId, setReload, navigate) => {
     let url = `/api/admin/del_student/${studentId}`;
     axios.delete(url)
         .then(res => res.data)
@@ -151,7 +148,7 @@ const DelStudent = (studentId, setReload) => {
         });
 };
 
-const DelQuestions = (studentId, testName, setReload) => {
+const DelQuestions = (studentId, testName, setReload, navigate) => {
     let url = '/api/admin/del_questions';
     let params = {
         student_id: studentId,
@@ -168,7 +165,7 @@ const DelQuestions = (studentId, testName, setReload) => {
         });
 };
 
-const patchAnswer = (questionId, answer, testName, setReload) => {
+const patchAnswer = (questionId, answer, testName, setReload, navigate) => {
     let url = `/api/admin/patch_answer/${questionId}`;
     let patch = {
         rk: testName,
@@ -182,7 +179,7 @@ const patchAnswer = (questionId, answer, testName, setReload) => {
         });
 };
 
-const patchScore = (questionId, score, testName, setReload) => {
+const patchScore = (questionId, score, testName, setReload, navigate) => {
     let url = `/api/admin/patch_score/${questionId}`;
     let patch = {
         rk: testName,
@@ -196,7 +193,7 @@ const patchScore = (questionId, score, testName, setReload) => {
         });
 };
 
-const patchEmail = (studentId, email, setReload) => {
+const patchEmail = (studentId, email, setReload, navigate) => {
     let url = `/api/admin/patch_email/${studentId}`;
     axios.post(url, { email: email })
         .then(_ => setReload(reload => reload + 1))

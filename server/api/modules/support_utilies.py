@@ -1,6 +1,6 @@
 from datetime import datetime
-from api import user
-from api import sql_provider
+from hashlib import sha256
+from api import api, sql_provider
 from api.models.shemas import Student
 from api.modules.custom_exceptions import ContentError
 
@@ -12,11 +12,11 @@ def load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time=None, f
         return []
     if not start_time:
         try:
-            rk_path = user.static_folder + f'/{teacher}/task_template/{file_name}'
+            rk_path = api.config['UPLOAD_FOLDER'] + f'/{teacher}/task_template/{file_name}'
             rk = rk_loader.load_tasks(rk_path)
             questions = [rk_cls(index=i+1, question=text, correct_answer=answer, \
                                 student_id=student.id, score=0, \
-                                image_url=f'{user.url_prefix}/download/{teacher}/images/{rk_choice}/{i+1}.jpg')
+                                image_url=f'/api/user/download/{teacher}/images/{rk_choice}/{i+1}.jpg')
                          for i, (text, answer) in enumerate(rk.items())]
             sql_provider.set_many(questions)
             time_patch = {'rk1_start_time': datetime.now().isoformat()} if rk_choice == 'rk1' \
@@ -52,3 +52,10 @@ def do_on_complete(student_id, test_name):
             else {'rk2_finish_time': datetime.now().isoformat()} if test_name == 'rk2' \
             else {'test_finish_time': datetime.now().isoformat()}
     sql_provider.update(Student, student_id, patch)
+
+def validate_hash(string1: str, string2: str):
+    hash1 = sha256(string1.encode('utf-8')).hexdigest()
+    hash2 = sha256(string2.encode('utf-8')).hexdigest()
+    if hash1 == hash2:
+        return hash1
+    return None

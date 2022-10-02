@@ -7,7 +7,7 @@ import GetData from '../../../local_storage';
 const ViewStudent = ({ students }) => {
     const navigate = useNavigate();
     const [tests] = useState(GetData().tests);
-    useEffect(() => { console.log(students) }, [students]);
+    useEffect(() => { }, [students]);
     return (
         <table className="table">
             <thead>

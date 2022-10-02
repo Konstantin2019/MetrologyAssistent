@@ -23,7 +23,7 @@ const ViewQuestion = () => {
                 if (err.response.status === 401) { navigate('/admin_auth') }
                 else { alert(err.response.data) }
             });
-    }, [studentId, test_name, reload]);
+    }, [studentId, test_name, reload, navigate]);
     return (
         <div className="container" style={{ "marginTop": "1%", "marginBottom": "1%" }}>
             <div className="container-fluid">

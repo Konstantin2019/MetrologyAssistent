@@ -19,7 +19,7 @@ const EditStudent = (props) => {
     const [email, setEmail] = useState('');
     const [filter, setFilter] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
-    const [selectedYear, selectedGroup, setSelectedGroup, groups, students, setReload] = props.params;
+    const [selectedYear, selectedGroup, setSelectedGroup, groups, students, setReload, navigate] = props.params;
     const paramsPack = [surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail];
     const filteredStudents = useMemo(() => {
         let filteredStudents = [];
@@ -42,13 +42,13 @@ const EditStudent = (props) => {
                         className="form-control" type="text" placeholder='Группа' />
                     <span className="input-group-btn">
                         <button className="btn btn-default" type="button" title="Добавить"
-                            onClick={() => AddGroup(groupName, setGroupName, setReload)}>
+                            onClick={() => AddGroup(groupName, setGroupName, setReload, navigate)}>
                             <span style={{ "color": "green" }}>
                                 <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
                             </span>
                         </button>
                         <button className="btn btn-default" type="button" title="Удалить"
-                            onClick={() => DelGroup(groups, groupName, setGroupName, setReload)}>
+                            onClick={() => DelGroup(groups, groupName, setGroupName, setReload, navigate)}>
                             <span style={{ "color": "red" }}>
                                 <FontAwesomeIcon icon={faMinus}></FontAwesomeIcon>
                             </span>
@@ -73,7 +73,7 @@ const EditStudent = (props) => {
                             <div className="col-sm-4"></div>
                             <div className="col-sm-8">
                                 <button className="btn btn-default" type="button" title="Добавить"
-                                    onClick={() => AddStudent(surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload)}>
+                                    onClick={() => AddStudent(surname, setSurname, name, setName, patronymic, setPatronymic, email, setEmail, selectedGroup, setReload, navigate)}>
                                     <span style={{ "color": "green" }}>
                                         <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
                                     </span>
@@ -89,7 +89,7 @@ const EditStudent = (props) => {
                         <input id="import" type="file" style={{ "visibility": "hidden", "maxWidth": "0" }}
                             onChange={(e) => {
                                 let studentsPromise = ReadExcel(e);
-                                AddStudents(studentsPromise, groups, setReload);
+                                AddStudents(studentsPromise, groups, setReload, navigate);
                             }} />
                     </AccordionBody>
                 </AccordionItem>
@@ -120,14 +120,14 @@ const EditStudent = (props) => {
                                             </button>
                                         </th>
                                         <th scope="col">
-                                            <button className={GetClassNameFor('email', sortConfig)}
+                                            <button className={ GetClassNameFor('email', sortConfig) }
                                                 onClick={() => Sort(filteredStudents, 'email', sortConfig, setSortConfig)}>
                                                 Эл.почта
                                             </button>
                                         </th>
                                         <th scope="col"></th>
                                         <th scope="col">
-                                            <button className={GetClassNameFor('group_id', sortConfig)}
+                                            <button className={ GetClassNameFor('group_id', sortConfig) }
                                                 onClick={() => Sort(filteredStudents, 'group_id', sortConfig, setSortConfig)}>
                                                 Группа
                                             </button>
@@ -147,7 +147,7 @@ const EditStudent = (props) => {
                                                 <button className="btn btn-default" type="button" title="Исправить email"
                                                     onClick={() => {
                                                         let email = prompt('Введите ответ: ');
-                                                        if (![null, ''].includes(email)) { patchEmail(student.id, email, setReload) }
+                                                        if (![null, ''].includes(email)) { patchEmail(student.id, email, setReload, navigate) }
                                                     }}>
                                                     <span style={{ "color": "#c9643b" }}>
                                                         <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
@@ -159,7 +159,7 @@ const EditStudent = (props) => {
                                                 <button className="btn btn-default" type="button" title="Удалить"
                                                     onClick={() => {
                                                         let yes = window.confirm("Удалить студента?");
-                                                        if (yes) { DelStudent(student.id, setReload) }
+                                                        if (yes) { DelStudent(student.id, setReload, navigate) }
                                                     }}>
                                                     <span style={{ "color": "red" }}>
                                                         <FontAwesomeIcon icon={faBan}></FontAwesomeIcon>

@@ -19,7 +19,7 @@ const AuthUserComponent = () => {
     const [selectedTeacher, setSelectedTeacher] = useState({ id: 0, teacher_name: '', teacher_view: '' });
     const navigate = useNavigate();
     useEffect(() => {
-        let url = '/api/for_auth';
+        let url = '/api/for_user_auth';
         axios.get(url)
             .then(res => res.data)
             .then(data => {
@@ -39,7 +39,7 @@ const AuthUserComponent = () => {
         let url = '/api/user_auth';
         axios.post(url, { email: email })
             .then(res => res.data)
-            .then(studentId => navigate(`/user_test/${studentId}/${selectedTest.test_name}/${selectedTeacher.teacher_name}`,
+            .then(studentId => navigate(`/test/${studentId}/${selectedTest.test_name}/${selectedTeacher.teacher_name}`,
                 {
                     state: {
                         surname: surname,

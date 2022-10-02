@@ -93,7 +93,7 @@ const AdminPanel = () => {
             <Tab eventKey="edit" title="Редактировать">
                 <div className="container">
                     <div className="container-fluid">
-                        <EditStudent params={[selectedYear, selectedGroup, setSelectedGroup, groups, students, setReload]} />
+                        <EditStudent params={[selectedYear, selectedGroup, setSelectedGroup, groups, students, setReload, navigate]} />
                     </div>
                 </div>
             </Tab>
