@@ -102,3 +102,9 @@ class Test(db.Model):
 
     def __repr__(self):
         return f'<question : {self.question}, correct_answer : {self.correct_answer}>'
+
+class Admin(db.Model):
+    __tablename__ = 'admin'
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.Text, nullable=True)
+    unique = synonym('token')

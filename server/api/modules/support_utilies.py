@@ -1,5 +1,5 @@
 from datetime import datetime
-from hashlib import sha256
+from random import randint
 from api import api, sql_provider
 from api.models.shemas import Student
 from api.modules.custom_exceptions import ContentError
@@ -53,9 +53,7 @@ def do_on_complete(student_id, test_name):
             else {'test_finish_time': datetime.now().isoformat()}
     sql_provider.update(Student, student_id, patch)
 
-def validate_hash(string1: str, string2: str):
-    hash1 = sha256(string1.encode('utf-8')).hexdigest()
-    hash2 = sha256(string2.encode('utf-8')).hexdigest()
-    if hash1 == hash2:
-        return hash1
-    return None
+def generate_token():
+    rand = [chr(randint(1, 1024)) for i in range(20)]
+    return ''.join(rand)
+

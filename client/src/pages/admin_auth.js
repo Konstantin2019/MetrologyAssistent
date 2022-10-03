@@ -13,9 +13,13 @@ const AdminAuth = () => {
             password: password
         };
         axios.post(url, user)
-            .then(_ => {
-                alert("Успешная авторизация!");
-                navigate('/admin_panel');
+            .then(res => res.data)
+            .then(token => {
+                if (token !== (undefined || null)) {
+                    sessionStorage.setItem('token', token)
+                    alert("Успешная авторизация!");
+                    navigate('/admin_panel');
+                }
             })
             .catch(err => alert(err.response.data));
     };

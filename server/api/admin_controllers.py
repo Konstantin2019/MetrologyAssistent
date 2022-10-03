@@ -1,20 +1,31 @@
-from api import api
 import json
 from flask import Blueprint, request
 from flask.helpers import make_response
 from datetime import datetime
 from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json
-from api.models.shemas import Group, Student, Year, RK1, RK2, Test
-from api import sql_provider, glob
+from api.models.shemas import Group, Student, Year, RK1, RK2, Test, Admin
+from api import sql_provider
 from api.modules.custom_exceptions import ContentError
 
 admin = Blueprint('admin', __name__)
 
 @admin.before_request
 def admin_middleware():
-    if glob['admin_status']:
-        return None
-    return make_response('Не авторизован!', 401)
+    if request.method == "GET" or request.method == 'DELETE':
+        token = request.args.get('token')
+    elif request.method == "POST":
+        json_data = request.get_json()
+        if 'token' in json_data:
+            token = json_data['token']
+        else:
+            token = None
+    if token:
+        admin: Admin = sql_provider.get(Admin, 1)
+        if admin.token == token:
+            return None
+    response = make_response('Не авторизован!', 401)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response           
 
 @admin.route('/', methods=['GET'])
 def admin_index():
@@ -61,18 +72,20 @@ def del_group(group_id):
 def add_students():
     data = request.get_json()
     try:
-        if type(data) is not list:
-            student = Student(surname=data['surname'], name=data['name'], patronymic=data['patronymic'],\
-                              email=data['email'], group_id=data['group_id'])
+        if type(data['students']) is not list:
+            student = Student(surname=data['students']['surname'], name=data['students']['name'], \
+                              patronymic=data['students']['patronymic'],
+                              email=data['students']['email'], group_id=data['students']['group_id'])
             if (student.surname or student.name or student.email) == '':
                 raise ContentError
             student_id = sql_provider.set(student)
             return make_response(json.dumps(student_id), 201)
         else:
             students = []
-            for item in data:
-                students.append(Student(surname=item['surname'], name=item['name'], patronymic=item['patronymic'], \
-                                        email=item['email'], group_id=item['group_id']))
+            for student in data['students']:
+                students.append(Student(surname=student['surname'], name=student['name'], \
+                                        patronymic=student['patronymic'],
+                                        email=student['email'], group_id=student['group_id']))
             students_ids = sql_provider.set_many(students)
             return make_response(json.dumps(students_ids), 201)
     except (KeyError, ContentError):
@@ -151,12 +164,11 @@ def patch_email(student_id):
     except:
         return make_response('Невалидные данные для обновления email!', 400)
 
-@admin.route('/del_questions', methods=['POST'])
+@admin.route('/del_questions', methods=['DELETE'])
 def del_questions():
-    data = request.get_json()
-    try:
-        student_id = data['student_id']
-        test_name = data['test_name']
+    student_id = request.args.get('student_id')
+    test_name = request.args.get('test_name')
+    if student_id and test_name:
         rk_cls = RK1 if test_name == 'rk1' \
                  else RK2 if test_name == 'rk2' \
                  else Test
@@ -178,5 +190,5 @@ def del_questions():
             return make_response(json.dumps(returned_ids), 200)
         else:
             return make_response('Передан неверный id студента или вопросы не существуют!', 400)
-    except KeyError:
+    else:
         return make_response('Переданы неверные параметры запроса!', 400)

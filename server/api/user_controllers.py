@@ -6,7 +6,7 @@ from api.modules.support_utilies import load_task, finish_task, do_on_complete
 from api.modules.json_utilies import question_to_json
 from api.models.shemas import Student, RK1, RK2, Test
 from api.modules.task_selector import select
-from api import sql_provider, glob
+from api import sql_provider, server_const
 from api.modules.custom_exceptions import ContentError
 
 user = Blueprint('user', __name__)
@@ -28,9 +28,9 @@ def test(student_id: int, rk_choice: str, teacher: str):
                   else student.test_finish_time
     if finish_time:
         return make_response('Рубежный контроль уже выполнен!', 500)
-    interval = glob['time_for_rk1'] if rk_choice == 'rk1' \
-               else glob['time_for_rk2'] if rk_choice == 'rk2' \
-               else glob['time_for_test']
+    interval = server_const['time_for_rk1'] if rk_choice == 'rk1' \
+               else server_const['time_for_rk2'] if rk_choice == 'rk2' \
+               else server_const['time_for_test']
     checker, task1_loader, task2_loader, test_loader = select(teacher)
     rk_loader = task1_loader if rk_choice == 'rk1' \
                 else task2_loader if rk_choice == 'rk2' \

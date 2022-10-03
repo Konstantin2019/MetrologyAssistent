@@ -2,9 +2,11 @@ from flask import Blueprint, request, session
 from flask.helpers import make_response
 from datetime import datetime
 from api.modules.json_utilies import year_to_json, group_to_json
-from api.models.shemas import Group, Student, Year
-from api import api, sql_provider, glob
+from api.modules.support_utilies import generate_token
+from api.models.shemas import Group, Student, Year, Admin
+from api import api, sql_provider
 import json
+from api.modules.custom_exceptions import ContentError
 
 auth = Blueprint('auth', __name__)
 
@@ -14,12 +16,26 @@ def admin_auth():
     try:
         if credentials['login'] == api.config['ADMIN_LOGIN'] and \
         credentials['password'] == api.config['ADMIN_PASSWORD']:
-            glob['admin_status'] = True
-            return make_response('ОК', 200)
+            tokens = sql_provider.get_all(Admin)
+            tokens_ids = [token.id for token in tokens]
+            if len(tokens_ids) > 1:
+                sql_provider.delete_many(Admin, tokens_ids[1:])
+            token = generate_token()
+            if len(tokens_ids) == 0:
+                id = sql_provider.set(Admin(token=token))
+            else:
+                id = sql_provider.update(Admin, 1, {'token': token})
+            if not id:
+                raise ContentError
+            response = make_response(json.dumps(token), 200)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response
         else:
             return make_response('Неверная пара логин/пароль!', 401)
     except KeyError:
-        return make_response('', 400)  
+        return make_response('Не переданы логин и/или пароль!', 400)  
+    except ContentError:
+        return make_response('Не удалось добавить токен в БД!', 400) 
 
 @auth.route('/for_user_auth', methods=['GET'])
 def for_auth():
