@@ -122,6 +122,12 @@ thead button.descending::after {
   .table td {
     display: block;
   }
+  .table th.email {
+    display: none;
+  }
+  .table td.email {
+    display: none;
+  }
   input[type=submit] {
     font-size: 50%!important;
   }
@@ -136,26 +142,27 @@ thead button.descending::after {
     margin: auto;
     padding: 0;
   }
-
   .container-auth {
     margin: auto;
     background-color: rgb(225, 242, 250);
     border-radius: .8rem; 
     max-width: 100%;
   }
-
   .table thead {
     display: none;
   }
-
   .table td {
     display: block;
   }
-
+  .table th.email {
+    display: none;
+  }
+  .table td.email {
+    display: none;
+  }
   input[type=submit] {
     font-size: 50%!important;
   }
-
   h1, h2 {
     font-size: 125%!important;
   }
@@ -165,14 +172,18 @@ thead button.descending::after {
   .container {
     max-width: 90%;
   }
-
   .container-auth {
     margin: auto;
     background-color: rgb(225, 242, 250);
     border-radius: .8rem; 
     max-width: 90%;
   }
-
+  .table th.email {
+    display: none;
+  }
+  .table td.email {
+    display: none;
+  }
   input[type=submit] {
     font-size: 80%;
   }
@@ -182,7 +193,6 @@ thead button.descending::after {
   .container {
     max-width: 85%;
   }
-  
   .container-auth {
     margin: auto;
     background-color: rgb(225, 242, 250);
@@ -195,7 +205,6 @@ thead button.descending::after {
   .container {
     max-width: 80%;
   }
-  
   .container-auth {
     margin: auto;
     background-color: rgb(225, 242, 250);

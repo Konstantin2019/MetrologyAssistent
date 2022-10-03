@@ -119,13 +119,13 @@ const EditStudent = (props) => {
                                                 Отчество
                                             </button>
                                         </th>
-                                        <th scope="col">
+                                        <th scope="col" className='email'>
                                             <button className={ GetClassNameFor('email', sortConfig) }
                                                 onClick={() => Sort(filteredStudents, 'email', sortConfig, setSortConfig)}>
                                                 Эл.почта
                                             </button>
                                         </th>
-                                        <th scope="col"></th>
+                                        <th scope="col" className='email'></th>
                                         <th scope="col">
                                             <button className={ GetClassNameFor('group_id', sortConfig) }
                                                 onClick={() => Sort(filteredStudents, 'group_id', sortConfig, setSortConfig)}>
@@ -142,8 +142,8 @@ const EditStudent = (props) => {
                                             <td>{student.surname}</td>
                                             <td>{student.name}</td>
                                             <td>{student.patronymic}</td>
-                                            <td>{student.email}</td>
-                                            <td>
+                                            <td className='email'>{student.email}</td>
+                                            <td className='email'>
                                                 <button className="btn btn-default" type="button" title="Исправить email"
                                                     onClick={() => {
                                                         let email = prompt('Введите ответ: ');
