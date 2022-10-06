@@ -1,8 +1,9 @@
 from datetime import datetime
 from random import randint
-from api import api, sql_provider
-from api.models.shemas import Student
+from api import api, sql_provider, server_const
+from api.models.shemas import Student, RK1, RK2, Test
 from api.modules.custom_exceptions import ContentError
+from api.modules.task_selector import select
 
 def load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time=None, finish_time=None):
     file_name = 'rk1.json' if rk_choice == 'rk1' \
@@ -57,3 +58,28 @@ def generate_token():
     rand = [chr(randint(1, 1024)) for i in range(20)]
     return ''.join(rand)
 
+def prelude(student_id: int, rk_choice: str, teacher: str, post=False):
+    student = sql_provider.get(Student, student_id)
+    if not student:
+        return 404
+    start_time = student.rk1_start_time if rk_choice == 'rk1' \
+                 else student.rk2_start_time if rk_choice == 'rk2' \
+                 else student.test_start_time
+    finish_time = student.rk1_finish_time if rk_choice == 'rk1' \
+                  else student.rk2_finish_time if rk_choice == 'rk2' \
+                  else student.test_finish_time
+    if finish_time:
+        return 400
+    interval = server_const['time_for_rk1'] if rk_choice == 'rk1' \
+               else server_const['time_for_rk2'] if rk_choice == 'rk2' \
+               else server_const['time_for_test']
+    checker, task1_loader, task2_loader, test_loader = select(teacher)
+    rk_loader = task1_loader if rk_choice == 'rk1' \
+                else task2_loader if rk_choice == 'rk2' \
+                else test_loader
+    rk_cls = RK1 if rk_choice == 'rk1' \
+             else RK2 if rk_choice == 'rk2' \
+             else Test
+    if post:
+        return checker, rk_cls
+    return student, start_time, finish_time, interval, rk_loader, rk_cls

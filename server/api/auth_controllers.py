@@ -27,9 +27,7 @@ def admin_auth():
                 id = sql_provider.update(Admin, 1, {'token': token})
             if not id:
                 raise ContentError
-            response = make_response(json.dumps(token), 200)
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response
+            return make_response(json.dumps(token), 200)
         else:
             return make_response('Неверная пара логин/пароль!', 401)
     except KeyError:
