@@ -1,5 +1,6 @@
 from flask import jsonify
-from api.models.shemas import Group, Student, Year, RK1, RK2, Test
+from api.models.shemas import Group, Student, Year, RK1, RK2, Test, Teacher, TestType
+from transliterate import translit
 
 def year_to_json(year: Year):
     return jsonify(id=year.id, year_name=year.year_name) \
@@ -22,4 +23,16 @@ def question_to_json(question: RK1 or RK2 or Test):
                    correct_answer=question.correct_answer, \
                    score=question.score, image_url=question.image_url,\
                    student_id=question.student_id) \
+                   .data.decode('utf-8')
+
+def teacher_to_json(teacher: Teacher):
+    return jsonify(id=teacher.id, teacher_view=teacher.teacher_name, \
+                   teacher_name=translit(teacher.teacher_name, reversed=True)\
+                   .split(' ')[0].lower()) \
+                   .data.decode('utf-8')
+
+def test_type_to_json(test: TestType):
+    return jsonify(id=test.id, test_view=test.test_name, \
+                   test_name=translit(test.test_name, reversed=True)
+                   .replace('№', '').lower() ) \
                    .data.decode('utf-8')

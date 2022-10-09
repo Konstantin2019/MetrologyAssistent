@@ -103,6 +103,18 @@ class Test(db.Model):
     def __repr__(self):
         return f'<question : {self.question}, correct_answer : {self.correct_answer}>'
 
+class Teacher(db.Model):
+    __tablename__ = 'teacher'
+    id = db.Column(db.Integer, primary_key=True)
+    teacher_name = db.Column(db.Text, nullable=True)
+    unique = synonym('teacher_name')
+
+class TestType(db.Model):
+    __tablename__ = 'testType'
+    id = db.Column(db.Integer, primary_key=True)
+    test_name = db.Column(db.Text, nullable=True)
+    unique = synonym('test_name')
+
 class Admin(db.Model):
     __tablename__ = 'admin'
     id = db.Column(db.Integer, primary_key=True)

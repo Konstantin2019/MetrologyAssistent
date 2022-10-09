@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from api.models.shemas import Year, Group, Student, RK1, RK2, Test, Admin
+from api.models.shemas import Year, Group, Student, RK1, RK2, Test, Admin, Teacher, TestType
 from os import getenv
 
 if getenv('SQLALCHEMY_DATABASE_URI') == 'sqlite:///':
@@ -10,6 +10,11 @@ class SQLInitializer():
         try:
             orm_object.create_all()
             print('Инициализация базы данных успешна...')
+            sql_provider = SQLProvider(orm_object)
+            teacher_id = sql_provider.set_many([Teacher(teacher_name='Потапов К.Г.'), Teacher(teacher_name='Тумакова Е.В.')])
+            test_type_id = sql_provider.set_many([TestType(test_name='РК№1'), TestType(test_name='РК№2'), TestType(test_name='Зачёт')])
+            if not teacher_id or not test_type_id:
+                raise Exception('Не удалось создать таблицы типа РК и преподавателей!')
             return SQLProvider(orm_object)
         except Exception as error:
             print(error)

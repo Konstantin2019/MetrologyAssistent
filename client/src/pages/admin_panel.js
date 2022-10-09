@@ -13,6 +13,7 @@ const AdminPanel = () => {
     const [reload, setReload] = useState(0);
     const [dbYears, dbGroups, dbStudents] = [useRef([]), useRef([]), useRef([])];
     const [years, setYears] = useState([]);
+    const [tests, setTests] = useState([]);
     const [selectedYear, setSelectedYear] = useState({ id: 0, year_name: '' });
     const [selectedGroup, setSelectedGroup] = useState({ group_name: '', id: 0, year_id: 0 });
     const navigate = useNavigate();
@@ -39,6 +40,8 @@ const AdminPanel = () => {
                         setSelectedGroup(dbGroups.current[0]);
                     }
                 }
+                let loadedTests = data['tests'].map(json => JSON.parse(json));
+                setTests([...loadedTests]);
             })
             .catch(err => {
                 if (err.response.status === 401) { navigate('/admin_auth') }
@@ -81,7 +84,7 @@ const AdminPanel = () => {
                     <section id="content">
                         <div className="container">
                             <div className="container-fluid">
-                                <ViewStudent students={currentStudents} />
+                                <ViewStudent students={currentStudents} tests={tests} />
                                 <button className="btn btn-outline-primary"
                                     onClick={() => LoadToExcel(currentStudents, selectedGroup.group_name)}>
                                     Экспорт в Excel

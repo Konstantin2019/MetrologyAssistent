@@ -54,10 +54,6 @@ def do_on_complete(student_id, test_name):
             else {'test_finish_time': datetime.now().isoformat()}
     sql_provider.update(Student, student_id, patch)
 
-def generate_token():
-    rand = [chr(randint(1, 1024)) for i in range(20)]
-    return ''.join(rand)
-
 def prelude(student_id: int, rk_choice: str, teacher: str, post=False):
     student = sql_provider.get(Student, student_id)
     if not student:
@@ -83,3 +79,7 @@ def prelude(student_id: int, rk_choice: str, teacher: str, post=False):
     if post:
         return checker, rk_cls
     return student, start_time, finish_time, interval, rk_loader, rk_cls
+
+def generate_token():
+    rand = [chr(randint(97, 122)) for i in range(20)]
+    return ''.join(rand)

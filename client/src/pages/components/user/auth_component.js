@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import AuthUserForm from '../common/auth_form';
 import TestSelectForm from './test_select_form';
 import axios from 'axios';
-import GetData from '../../../local_storage';
 
 const AuthUserComponent = () => {
     const [surname, setSurname] = useState('');
@@ -11,8 +10,8 @@ const AuthUserComponent = () => {
     const [patronymic, setPatronymic] = useState('');
     const [email, setEmail] = useState('');
     const [groups, setGroups] = useState([]);
-    const [tests] = useState(GetData().tests);
-    const [teachers] = useState(GetData().teachers);
+    const [tests, setTests] = useState([]);
+    const [teachers, setTeachers] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState({ group_name: '', id: 0, year_id: 0 })
     const [selectedYear, setSelectedYear] = useState({ id: 0, year_name: '' });
     const [selectedTest, setSelectedTest] = useState({ id: 0, test_name: '', test_view: '' });
@@ -25,16 +24,20 @@ const AuthUserComponent = () => {
             .then(data => {
                 let year = data['year']
                 let groups = data['groups'].map(json => JSON.parse(json));
+                let teachers = data['teachers'].map(json => JSON.parse(json));
+                let tests = data['tests'].map(json => JSON.parse(json));
                 if (groups.length > 0 && tests.length > 0 && teachers.length > 0) {
                     setGroups([...groups]);
                     setSelectedGroup(groups[0]);
+                    setTests([...tests]);
                     setSelectedTest(tests[0]);
+                    setTeachers([...teachers]);
                     setSelectedTeacher(teachers[0]);
                     setSelectedYear(year);
                 }
             })
             .catch(err => alert(err.response.data));
-    }, [tests, teachers]);
+    }, []);
     const Auth = () => {
         let url = '/api/user_auth';
         axios.post(url, { email: email })

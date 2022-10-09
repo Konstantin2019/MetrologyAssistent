@@ -1,9 +1,9 @@
 from flask import Blueprint, request, session
 from flask.helpers import make_response
 from datetime import datetime
-from api.modules.json_utilies import year_to_json, group_to_json
+from api.modules.json_utilies import year_to_json, group_to_json, teacher_to_json, test_type_to_json
 from api.modules.support_utilies import generate_token
-from api.models.shemas import Group, Student, Year, Admin
+from api.models.shemas import Group, Student, Year, Admin, Teacher, TestType
 from api import api, sql_provider
 import json
 from api.modules.custom_exceptions import ContentError
@@ -40,12 +40,18 @@ def for_auth():
     current_year = datetime.now().year
     year = sql_provider.query(Year).filter_by(year_name=current_year).scalar()
     groups = sql_provider.get_all(Group)
-    if year and len(groups) > 0:
+    teachers = sql_provider.get_all(Teacher)
+    tests = sql_provider.get_all(TestType)
+    if year and groups and teachers and tests:
         jsonified_year = year_to_json(year)
         jsonified_groups = [group_to_json(group) for group in groups]
+        jsonified_teachers = [teacher_to_json(teacher) for teacher in teachers]
+        jsonified_tests = [test_type_to_json(test) for test in tests]
         session['group_load'] = True
         return make_response(json.dumps({'year': jsonified_year, 
-                                         'groups': jsonified_groups}), 200)
+                                         'groups': jsonified_groups,
+                                         'teachers': jsonified_teachers,
+                                         'tests': jsonified_tests}), 200)
     else:
         session['group_load'] = False
         return make_response('Отсутствуют учебные группы!', 500)

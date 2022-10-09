@@ -2,8 +2,8 @@ import json
 from flask import Blueprint, request
 from flask.helpers import make_response
 from datetime import datetime
-from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json
-from api.models.shemas import Group, Student, Year, RK1, RK2, Test, Admin
+from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json, test_type_to_json
+from api.models.shemas import Group, Student, Year, RK1, RK2, Test, Admin, TestType
 from api import sql_provider
 from api.modules.custom_exceptions import ContentError
 
@@ -32,12 +32,15 @@ def admin_index():
     years = sql_provider.get_all(Year)
     groups = sql_provider.get_all(Group)
     students = sql_provider.get_all(Student)
+    tests = sql_provider.get_all(TestType)
     jsonfied_years = [year_to_json(year) for year in years]
     jsonfied_groups = [group_to_json(group) for group in groups]
     jsonfied_students = [student_to_json(student) for student in students]
+    jsonified_tests = [test_type_to_json(test) for test in tests]
     response = make_response(json.dumps({'years': jsonfied_years, 
                                          'groups': jsonfied_groups, 
-                                         'students': jsonfied_students}), 200)
+                                         'students': jsonfied_students,
+                                         'tests': jsonified_tests}), 200)
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response           
     

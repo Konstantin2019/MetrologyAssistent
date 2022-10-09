@@ -14,9 +14,9 @@ sql_provider = SQLInitializer()(db)
 
 server_const = { 'time_for_rk1': 60, 'time_for_rk2': 60, 'time_for_test': 80 }
 
-from api.auth_controllers import auth
+from api.controllers.auth_controllers import auth
 api.register_blueprint(auth, url_prefix='/api')
-from api.admin_controllers import admin
+from api.controllers.admin_controllers import admin
 api.register_blueprint(admin, url_prefix='/api/admin')
-from api.user_controllers import user
+from api.controllers.user_controllers import user
 api.register_blueprint(user, url_prefix='/api/user')
