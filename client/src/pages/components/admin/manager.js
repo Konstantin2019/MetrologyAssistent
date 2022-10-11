@@ -5,7 +5,7 @@ import axios from 'axios';
 const AddGroup = (groupName, setGroupName, setReload, navigate) => {
     let url = '/api/admin/create_group';
     let token = sessionStorage.getItem('token');
-    axios.post(url, { group_name: groupName, token: token })
+    axios.post(url, { group_name: groupName }, { headers: { token: token } })
         .then(res => res.data)
         .then(groupId => {
             alert(`Группа c id = ${groupId} успешно добавлена или уже существует!`);
@@ -22,7 +22,7 @@ const DelGroup = (groups, groupName, setGroupName, setReload, navigate) => {
     let group = groups.filter(g => g.group_name === groupName)[0];
     let url = `/api/admin/del_group/${group.id}`;
     let token = sessionStorage.getItem('token');
-    axios.delete(url, { params: {token: token} })
+    axios.delete(url, { headers: { token: token } })
         .then(res => res.data)
         .then(groupId => {
             alert(`Группа c id = ${groupId} успешно удалена!`);
@@ -48,7 +48,7 @@ const AddStudent = (surname, setSurname, name, setName, patronymic, setPatronymi
     };
     let url = '/api/admin/add_students';
     let token = sessionStorage.getItem('token');
-    axios.post(url, { students: student, token: token })
+    axios.post(url, { students: student }, { headers: { token: token } })
         .then(res => res.data)
         .then(studentId => {
             alert(`Студент c id = ${studentId} успешно добавлен или уже существует!`);
@@ -125,7 +125,7 @@ const AddStudents = (studentsPromise, groups, setReload, navigate) => {
     }).then(loadedStudents => {
         let url = '/api/admin/add_students';
         let token = sessionStorage.getItem('token');
-        axios.post(url, { students: loadedStudents, token: token })
+        axios.post(url, { students: loadedStudents }, { headers: { token: token } })
             .then(res => res.data)
             .then(studentsIds => {
                 alert(`Студенты c ids = [${studentsIds}] успешно добавлены или уже существуют!`);
@@ -141,7 +141,7 @@ const AddStudents = (studentsPromise, groups, setReload, navigate) => {
 const DelStudent = (studentId, setReload, navigate) => {
     let url = `/api/admin/del_student/${studentId}`;
     let token = sessionStorage.getItem('token');
-    axios.delete(url, { params: { token: token } })
+    axios.delete(url, { headers: { token: token } })
         .then(res => res.data)
         .then(studentId => {
             alert(`Студент c id = ${studentId} успешно удален!`);
@@ -156,7 +156,7 @@ const DelStudent = (studentId, setReload, navigate) => {
 const DelQuestions = (studentId, testName, setReload, navigate) => {
     let url = '/api/admin/del_questions';
     let token = sessionStorage.getItem('token');
-    axios.delete(url, { params: { student_id: studentId, test_name: testName, token: token} })
+    axios.delete(url, { params: { student_id: studentId, test_name: testName },  headers: { token: token } })
         .then(_ => {
             alert(`Вопросы успешно сброшены!`);
             setReload(reload => reload + 1);
@@ -170,7 +170,7 @@ const DelQuestions = (studentId, testName, setReload, navigate) => {
 const patchAnswer = (questionId, answer, testName, setReload, navigate) => {
     let url = `/api/admin/patch_answer/${questionId}`;
     let token = sessionStorage.getItem('token');
-    axios.post(url, { rk: testName, answer: answer, token: token })
+    axios.post(url, { rk: testName, answer: answer }, { headers: { token: token } })
         .then(_ => setReload(reload => reload + 1))
         .catch(err => {
             if (err.response.status === 401) { navigate('/admin_auth') }
@@ -181,7 +181,7 @@ const patchAnswer = (questionId, answer, testName, setReload, navigate) => {
 const patchScore = (questionId, score, testName, setReload, navigate) => {
     let url = `/api/admin/patch_score/${questionId}`;
     let token = sessionStorage.getItem('token');
-    axios.post(url, { rk: testName, question_score: score, token: token})
+    axios.post(url, { rk: testName, question_score: score }, { headers: { token: token } })
         .then(_ => setReload(reload => reload + 1))
         .catch(err => {
             if (err.response.status === 401) { navigate('/admin_auth') }
@@ -192,7 +192,7 @@ const patchScore = (questionId, score, testName, setReload, navigate) => {
 const patchEmail = (studentId, email, setReload, navigate) => {
     let url = `/api/admin/patch_email/${studentId}`;
     let token = sessionStorage.getItem('token');
-    axios.post(url, { email: email, token: token })
+    axios.post(url, { email: email }, { headers: { token: token } })
         .then(_ => setReload(reload => reload + 1))
         .catch(err => {
             if (err.response.status === 401) { navigate('/admin_auth') }

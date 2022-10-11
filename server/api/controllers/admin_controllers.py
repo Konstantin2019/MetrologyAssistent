@@ -1,5 +1,6 @@
 import json
 from flask import Blueprint, request
+from werkzeug import Response
 from flask.helpers import make_response
 from datetime import datetime
 from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json, test_type_to_json
@@ -11,21 +12,20 @@ admin = Blueprint('admin', __name__)
 
 @admin.before_request
 def admin_middleware():
-    if request.method == "GET" or request.method == 'DELETE':
-        token = request.args.get('token')
-    elif request.method == "POST":
-        json_data = request.get_json()
-        if 'token' in json_data:
-            token = json_data['token']
-        else:
-            token = None
+    if request.method == "OPTIONS":
+        return make_response('', 200)
+    token = request.headers.get('token')
     if token:
         admin: Admin = sql_provider.get(Admin, 1)
         if admin.token == token:
             return None
-    response = make_response('Не авторизован!', 401)
+    return make_response('Не авторизован!', 401)
+
+@admin.after_request
+def response_wrapper(response: Response):
     response.headers.add("Access-Control-Allow-Origin", "*")
-    return response           
+    response.headers.add("Access-Control-Allow-Headers", "token")
+    return response
 
 @admin.route('/', methods=['GET'])
 def admin_index():
@@ -37,12 +37,10 @@ def admin_index():
     jsonfied_groups = [group_to_json(group) for group in groups]
     jsonfied_students = [student_to_json(student) for student in students]
     jsonified_tests = [test_type_to_json(test) for test in tests]
-    response = make_response(json.dumps({'years': jsonfied_years, 
+    return make_response(json.dumps({'years': jsonfied_years, 
                                          'groups': jsonfied_groups, 
                                          'students': jsonfied_students,
-                                         'tests': jsonified_tests}), 200)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response           
+                                         'tests': jsonified_tests}), 200)     
     
 @admin.route('/create_group', methods=['POST'])
 def create_group():
