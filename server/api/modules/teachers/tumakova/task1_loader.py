@@ -138,3 +138,13 @@ def load_tasks(filepath):
         return result
     except Exception as error:
         return error
+
+import asyncio
+import concurrent.futures
+from functools import partial
+
+async def load_tasks_async(filepath):
+    loop = asyncio.get_running_loop()
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+      result = await loop.run_in_executor(pool, partial(load_tasks, filepath))
+      return result

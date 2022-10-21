@@ -1,5 +1,5 @@
-from flask import jsonify
-from api.models.shemas import Group, Student, Year, RK1, RK2, Test, Teacher, TestType
+from quart import jsonify
+from api.models import Group, Student, Year, RK1, RK2, Test, Teacher, TestType
 from transliterate import translit
 
 def year_to_json(year: Year):

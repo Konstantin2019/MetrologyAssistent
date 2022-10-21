@@ -1,92 +1,81 @@
-from flask_sqlalchemy import SQLAlchemy
-from api.models.shemas import Year, Group, Student, RK1, RK2, Test, Admin, Teacher, TestType
-from os import getenv
+from typing import TypeVar
+from models import *
+from tortoise.expressions import Q
+from tortoise.exceptions import DoesNotExist, IntegrityError, TransactionManagementError, FieldError
+import logging
+import asyncio
 
-if getenv('SQLALCHEMY_DATABASE_URI') == 'sqlite:///':
-    import api.modules.sqlite_fix
-
-class SQLInitializer():
-    def __call__(self, orm_object: SQLAlchemy):
-        try:
-            orm_object.create_all()
-            print('Инициализация базы данных успешна...')
-            sql_provider = SQLProvider(orm_object)
-            teacher_id = sql_provider.set_many([Teacher(teacher_name='Потапов К.Г.'), Teacher(teacher_name='Тумакова Е.В.')])
-            test_type_id = sql_provider.set_many([TestType(test_name='РК№1'), TestType(test_name='РК№2'), TestType(test_name='Зачёт')])
-            if not teacher_id or not test_type_id:
-                raise Exception('Не удалось создать таблицы типа РК и преподавателей!')
-            return SQLProvider(orm_object)
-        except Exception as error:
-            print(error)
+Tortoise_model = TypeVar('Tortoise_model', Admin, Year, Group, Student, Teacher, TestType, RK1, RK2, Test)
 
 class SQLProvider():
-    def __init__(self, orm_object: SQLAlchemy):
-        self.orm = orm_object
+    def __init__(self):
+        teachers = [Teacher(teacher_name='Потапов К.Г.'), Teacher(teacher_name='Тумакова Е.В.')]
+        tests = [TestType(test_name='РК№1'), TestType(test_name='РК№2'), TestType(test_name='Зачёт')]
+        loop = asyncio.get_running_loop()
+        teachers_ids = asyncio.run_coroutine_threadsafe(self.set_many(teachers), loop).result()
+        tests_type_ids = asyncio.run_coroutine_threadsafe(self.set_many(tests), loop).result()
+        if not teachers_ids or not tests_type_ids:
+            logging.error('Не удалось создать таблицы типа РК и преподавателей!')
 
-    def get_all(self, cls):
-        return cls.query.all()
-
-    def get(self, cls, id):
-        return cls.query.get(id)
-
-    def query(self, cls):
-        return cls.query
-
-    def set(self, obj):
-        cls = obj.__class__
-        try:
-            record = cls.query.filter_by(unique=obj.unique).scalar()
-            if not record:
-                self.orm.session.add(obj)
-                self.orm.session.flush()
-                self.orm.session.commit()
-                print(f'Запись {obj.unique} с id : {obj.id} успешно добавлена в таблицу {cls.__name__}...')
-                return obj.id
-            else:
-                print(f'Запись {obj.unique} с id : {record.id} уже содержится в таблице {cls.__name__}...')
-                return record.id
-        except Exception as err:
-            self.orm.session.rollback()
-            print('Ошибка добавления в БД : ' + str(err))
-
-    def set_many(self, objs: list):
-        if len(objs) > 0:
-            obj_ids = []
-            for obj in objs:
-                obj_ids.append(self.set(obj))
-            return obj_ids
+    async def get_all(self, model: Tortoise_model, filter: Q=None):
+        if not filter:
+            items = await model.all()
         else:
-            raise ValueError
+            items = await model.filter(filter).all()
+        return items
 
-    def update(self, cls, id, data):
+    async def get(self, model: Tortoise_model, expr: Q):
         try:
-            cls.query.filter_by(id=id).update(data, synchronize_session='evaluate')
-            self.orm.session.commit()
-            print(f'Запись таблицы {cls.__name__} с id : {id} успешно изменена...')
-            return id
+            item = await model.get(expr)
+            return item
+        except DoesNotExist:
+            logging.info('Объект не найден!')
         except Exception as err:
-            self.orm.session.rollback()
-            print('Ошибка модификации в БД : ' + str(err)) 
+            logging.error(err)
 
-    def delete(self, cls, id):
+    async def set(self, instance: Tortoise_model):
+        model = instance.__class__
         try:
-            item = cls.query.filter_by(id=id).scalar()
-            if item:
-                self.orm.session.delete(item)
-                self.orm.session.commit()
-                print(f'Запись таблицы {cls.__name__} с id : {id} успешно удалена...')
-                return id
+            item, created = await model.get_or_create(instance)
+            if created:
+                logging.info(f'Запись в таблице {model.__name__} с id : {item.id} успешно создана!')
             else:
-                print('В БД отсутстует сущность с заданным id')
-                return -1
-        except Exception as err:
-            self.orm.session.rollback()
-            print('Ошибка удаления из БД : ' + str(err))
-    
-    def delete_many(self, cls, ids: list):
-        if len(ids) > 0:
-            for id in ids:
-                self.delete(cls, id)
+                logging.info(f'Запись в таблице {model.__name__} с id : {item.id} уже существует!')
+            return item.id
+        except IntegrityError:
+            logging.error(f'Ошибка создания объекта {instance}!')
+        except TransactionManagementError:
+            logging.error('Ошибка транзакции!')
+
+    async def set_many(self, instances: list):
+        if len(instances) > 0:
+            ids = await asyncio.gather([self.set(instance) for instance in instances])
+            ids = [id for id in ids if id]
             return ids
         else:
-            raise ValueError
+            logging.error('Список на создание пустой!')
+
+    async def update(self, model: Tortoise_model, id: int, data: dict):
+        item = await model.filter(id=id)
+        if item:
+            await model.filter(id=id).update(data)
+            logging.info(f'Запись в таблице {model.__name__} с id : {id} успешно изменена!')
+            return id
+        else:
+            logging.warning(f'Запись с id: {id} не найдена!')
+
+    async def delete(self, model: Tortoise_model, id: int):
+        item = await model.filter(id=id)
+        if item:
+            await model.filter(id=id).delete()
+            logging.info(f'Запись в таблице {model.__name__} с id : {id} успешно удалена...')
+            return id
+        else:
+            logging.warning(f'Запись с id: {id} не найдена!')
+    
+    async def delete_many(self, model: Tortoise_model, ids: list):
+        if len(ids) > 0:
+            ids = await asyncio.gather([self.delete(model, id) for id in ids])
+            return ids
+        else:
+            logging.error('Список на удаление пустой!')

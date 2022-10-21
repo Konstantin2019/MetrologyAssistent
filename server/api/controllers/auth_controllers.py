@@ -1,30 +1,31 @@
-from flask import Blueprint, request, session
-from flask.helpers import make_response
+import asyncio
+import json
+from tortoise.expressions import Q
+from quart import Blueprint, request, session, make_response
 from datetime import datetime
 from api.modules.json_utilies import year_to_json, group_to_json, teacher_to_json, test_type_to_json
 from api.modules.support_utilies import generate_token
-from api.models.shemas import Group, Student, Year, Admin, Teacher, TestType
+from api.models import Group, Student, Year, Admin, Teacher, TestType
 from api import api, sql_provider
-import json
 from api.modules.custom_exceptions import ContentError
 
 auth = Blueprint('auth', __name__)
 
 @auth.route('/admin_auth', methods=['POST'])
-def admin_auth():
-    credentials = request.get_json()
+async def admin_auth():
+    credentials = await request.get_json()
     try:
         if credentials['login'] == api.config['ADMIN_LOGIN'] and \
         credentials['password'] == api.config['ADMIN_PASSWORD']:
-            tokens = sql_provider.get_all(Admin)
+            tokens = await sql_provider.get_all(Admin)
             tokens_ids = [token.id for token in tokens]
             if len(tokens_ids) > 1:
-                sql_provider.delete_many(Admin, tokens_ids[1:])
+                await sql_provider.delete_many(Admin, tokens_ids[1:])
             token = generate_token()
             if len(tokens_ids) == 0:
-                id = sql_provider.set(Admin(token=token))
+                id = await sql_provider.set(Admin(token=token))
             else:
-                id = sql_provider.update(Admin, 1, {'token': token})
+                id = await sql_provider.update(Admin, 1, {'token': token})
             if not id:
                 raise ContentError
             return make_response(json.dumps(token), 200)
@@ -36,12 +37,12 @@ def admin_auth():
         return make_response('Не удалось добавить токен в БД!', 400) 
 
 @auth.route('/for_user_auth', methods=['GET'])
-def for_auth():
+async def for_auth():
     current_year = datetime.now().year
-    year = sql_provider.query(Year).filter_by(year_name=current_year).scalar()
-    groups = sql_provider.get_all(Group)
-    teachers = sql_provider.get_all(Teacher)
-    tests = sql_provider.get_all(TestType)
+    year, groups, teachers, tests = await asyncio.gather(sql_provider.get(Year, Q(year_name=current_year)), \
+                                                         sql_provider.get_all(Group), \
+                                                         sql_provider.get_all(Teacher), \
+                                                         sql_provider.get_all(TestType))
     if year and groups and teachers and tests:
         jsonified_year = year_to_json(year)
         jsonified_groups = [group_to_json(group) for group in groups]
@@ -57,13 +58,13 @@ def for_auth():
         return make_response('Отсутствуют учебные группы!', 500)
 
 @auth.route('/user_auth', methods=['POST'])
-def user_auth():
+async def user_auth():
     if not session['group_load']:
         return make_response('Аутентификация невозможна!', 500)
-    data = request.get_json()
+    data = await request.get_json()
     if 'email' in data and data['email']:
         email = data['email'].lower()
-        student = sql_provider.query(Student).filter_by(email=email).scalar()
+        student = await sql_provider.get(Student, Q(email=email))
         if student:
             return make_response(json.dumps(student.id), 200)
     return make_response('Студент не найден!', 404)

@@ -1,16 +1,17 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager
+from quart import Quart
+from tortoise.contrib.quart import register_tortoise
 
-api = Flask(__name__)
+api = Quart(__name__)
 api.config.from_object('config.DevelopmentConfig')
-db = SQLAlchemy(api)
-migrate = Migrate(api, db)
-login_manager = LoginManager(api)
 
-from api.modules.sql_provider import SQLInitializer
-sql_provider = SQLInitializer()(db)
+register_tortoise(
+    api,
+    config=api.config['TORTOISE_ORM'],
+    generate_schemas=True,
+)
+
+from api.modules.sql_provider import SQLProvider
+sql_provider = SQLProvider()
 
 server_const = { 'time_for_rk1': 60, 'time_for_rk2': 60, 'time_for_test': 80 }
 
