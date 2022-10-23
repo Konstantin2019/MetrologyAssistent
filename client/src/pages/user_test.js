@@ -52,7 +52,6 @@ const UserTest = () => {
                     let questions = data['questions'].map(json => JSON.parse(json));
                     if (questions.length > 0) {
                         dbQuestions.current = questions.sort((q1, q2) => q1.index > q2.index ? 1 : -1);
-                        console.log(dbQuestions.current);
                         for (let i = 0; i < questions.length; i++) { images.current.push(null) }
                         setTotalQuestions(dbQuestions.current.length);
                         setCurrentPage(1);

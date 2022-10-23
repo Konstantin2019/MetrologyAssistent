@@ -16,26 +16,31 @@ class BaseConfig():
 
 class DevelopmentConfig(BaseConfig):
     TORTOISE_ORM = {
-    "connections": {"default": getenv('DATABASE_URI_DEV') + path.join(dir_path, 'api/static/sqlite_db/tasks.db')},
-    "apps": {
-        "models": {
-            "models": ["models", "aerich.models"],
-            "default_connection": "default",
+        "connections": {"default": getenv('DATABASE_URI_DEV') + path.join(dir_path, 'api/static/sqlite_db/tasks.db')},
+        "apps": {
+            "models": {
+                "models": ["api.models", "aerich.models"],
+                "default_connection": "default",
+                },
             },
-        },
-    }   
+        }   
     QUART_ENV = 'development'
+    ENV = QUART_ENV
     DEBUG = True
 
 class ProductionConfig(BaseConfig):
     TORTOISE_ORM = {
-    "connections": {"default": getenv('DATABASE_URI_PROD')},
-    "apps": {
-        "models": {
-            "models": ["models", "aerich.models"],
-            "default_connection": "default",
+        "connections": {"default": getenv('DATABASE_URI_PROD')},
+        "apps": {
+            "models": {
+                "models": ["api.models", "aerich.models"],
+                "default_connection": "default",
+                },
             },
-        },
-    }   
+        }   
     QUART_ENV = 'production'
+    ENV = QUART_ENV
     DEBUG = False
+
+T_ORM_DEV = DevelopmentConfig.TORTOISE_ORM
+T_ORM_PROD = ProductionConfig.TORTOISE_ORM

@@ -1,4 +1,3 @@
-from tortoise.expressions import Q
 from datetime import datetime
 from random import randint
 from api import api, sql_provider, server_const
@@ -31,13 +30,13 @@ async def load_task(student, teacher, rk_choice, rk_loader, rk_cls, start_time=N
         except:
             return None, None
     else:
-        questions = await sql_provider.get_all(rk_cls, Q(student_id=student.id))
+        questions = await sql_provider.get_all(rk_cls, filter={'student_id': student.id})
     return start_time, questions
 
 async def finish_task(question_id, question_index, student_answer, checker, rk_choice, rk_cls):
     try:
         index = int(question_index)
-        question = await sql_provider.get(rk_cls, Q(id=question_id))
+        question = await sql_provider.get(rk_cls, key={'id': question_id})
         if not question:
             raise ContentError
         correct_answer = question.correct_answer
@@ -56,7 +55,7 @@ async def do_on_complete(student_id, test_name):
     await sql_provider.update(Student, student_id, patch)
 
 async def prelude(student_id: int, rk_choice: str, teacher: str, post=False):
-    student = await sql_provider.get(Student, Q(id=student_id))
+    student = await sql_provider.get(Student, key={'id': student_id})
     if not student:
         return 404
     start_time = student.rk1_start_time if rk_choice == 'rk1' \

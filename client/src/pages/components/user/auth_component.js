@@ -26,14 +26,18 @@ const AuthUserComponent = () => {
                 let groups = data['groups'].map(json => JSON.parse(json));
                 let teachers = data['teachers'].map(json => JSON.parse(json));
                 let tests = data['tests'].map(json => JSON.parse(json));
-                if (groups.length > 0 && tests.length > 0 && teachers.length > 0) {
+                if (year !== (undefined || null)) {
+                    setSelectedYear(year);
+                }
+                if (groups.length > 0) {
                     setGroups([...groups]);
                     setSelectedGroup(groups[0]);
+                };
+                if (tests.length > 0 && teachers.length > 0) {
                     setTests([...tests]);
                     setSelectedTest(tests[0]);
                     setTeachers([...teachers]);
                     setSelectedTeacher(teachers[0]);
-                    setSelectedYear(year);
                 }
             })
             .catch(err => alert(err.response.data));

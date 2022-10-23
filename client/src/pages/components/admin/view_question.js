@@ -15,7 +15,7 @@ const ViewQuestion = () => {
     useEffect(() => {
         let url = `/api/admin/view_student/${studentId}`;
         let token = sessionStorage.getItem('token');
-        axios.get(url, { params: { rk: test_name, token: token } })
+        axios.get(url, { params: { rk: test_name }, headers: { token: token } })
             .then(res => res.data)
             .then(data => data.map(json => JSON.parse(json)))
             .then(questions => questions.sort((q1, q2) => q1.index > q2.index ? 1 : -1))
