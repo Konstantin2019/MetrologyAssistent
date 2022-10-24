@@ -1,11 +1,14 @@
 FROM python:3.9.12
-WORKDIR /app
+WORKDIR /server
 
 COPY server/api ./api
 COPY server/migrations ./migrations
 COPY server/config.py server/runner.py server/requirements.txt server/.env ./
-COPY server/flask-entrypoint.sh ./flask-entrypoint.sh
+COPY server/quart-entrypoint.sh ./quart-entrypoint.sh
 RUN pip3 install -r ./requirements.txt
-ENV FLASK_ENV production
+ENV QUART_ENV production
+
+RUN apt-get update
+RUN apt-get -y install postgresql-client
 
 EXPOSE 3001

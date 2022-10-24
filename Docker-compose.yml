@@ -19,11 +19,13 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.api
-    entrypoint: ./flask-entrypoint.sh
+    entrypoint: ./quart-entrypoint.sh
     environment:
       TZ: Europe/Minsk
     depends_on:
       - db
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       
   client:
     container_name: client
