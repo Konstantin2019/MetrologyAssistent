@@ -4,28 +4,20 @@ from tortoise import BaseDBAsyncClient
 async def upgrade(db: BaseDBAsyncClient) -> str:
     return """
         CREATE TABLE IF NOT EXISTS "admin" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "token" TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS "teachers" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "teacher_name" VARCHAR(32) NOT NULL
-);
-CREATE TABLE IF NOT EXISTS "test_types" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "test_name" VARCHAR(16) NOT NULL
-);
 CREATE TABLE IF NOT EXISTS "years" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "year_name" INT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS "student_groups" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "group_name" VARCHAR(12) NOT NULL,
     "year_id" INT NOT NULL REFERENCES "years" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "students" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(32) NOT NULL,
     "surname" VARCHAR(32) NOT NULL,
     "patronymic" VARCHAR(32),
@@ -39,7 +31,7 @@ CREATE TABLE IF NOT EXISTS "students" (
     "group_id" INT NOT NULL REFERENCES "student_groups" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "rk1" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "index" INT,
     "question" TEXT,
     "student_answer" TEXT,
@@ -49,7 +41,7 @@ CREATE TABLE IF NOT EXISTS "rk1" (
     "student_id" INT NOT NULL REFERENCES "students" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "rk2" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "index" INT,
     "question" TEXT,
     "student_answer" TEXT,
@@ -59,7 +51,7 @@ CREATE TABLE IF NOT EXISTS "rk2" (
     "student_id" INT NOT NULL REFERENCES "students" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "tests" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "index" INT,
     "question" TEXT,
     "student_answer" TEXT,
@@ -69,10 +61,10 @@ CREATE TABLE IF NOT EXISTS "tests" (
     "student_id" INT NOT NULL REFERENCES "students" ("id") ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS "aerich" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "version" VARCHAR(255) NOT NULL,
     "app" VARCHAR(100) NOT NULL,
-    "content" JSON NOT NULL
+    "content" JSONB NOT NULL
 );"""
 
 

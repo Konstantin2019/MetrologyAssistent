@@ -1,10 +1,10 @@
+from api import api, sql_provider, dteachers, dtests
 import json
 from quart import Blueprint, request, session, make_response
 from datetime import datetime
 from api.modules.json_utilies import year_to_json, group_to_json, teacher_to_json, test_type_to_json
 from api.modules.support_utilies import generate_token
-from api.models import Group, Student, Year, Admin, default_teachers, default_test_types
-from api import api, sql_provider
+from api.models import Group, Student, Year, Admin
 from api.modules.custom_exceptions import ContentError
 
 auth = Blueprint('auth', __name__)
@@ -39,8 +39,8 @@ async def for_auth():
     current_year = datetime.now().year
     year = await sql_provider.get(Year, key={'year_name': current_year})
     groups = await sql_provider.get_all(Group)
-    teachers = await sql_provider.set_many(default_teachers)
-    tests = await sql_provider.set_many(default_test_types)
+    teachers = [dteachers[key] for key in dteachers]
+    tests = [dtests[key] for key in dtests]
     jsonified_year = await year_to_json(year)
     jsonified_groups = [await group_to_json(group) for group in groups]
     jsonified_teachers = [await teacher_to_json(teacher) for teacher in teachers]

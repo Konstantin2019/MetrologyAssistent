@@ -124,32 +124,9 @@ class Test(Model):
     class Meta():
         table = 'tests'
 
-class Teacher(Model):
-    id = fields.IntField(pk=True)
-    teacher_name = fields.CharField(max_length=32)
-
-    def __str__(self):
-        return self.teacher_name
-
-    class Meta():
-        table = 'teachers'
-
-class TestType(Model):
-    id = fields.IntField(pk=True)
-    test_name = fields.CharField(max_length=16)
-
-    def __str__(self):
-        return self.test_name
-
-    class Meta():
-        table = 'test_types'
-
 class Admin(Model):
     id = fields.IntField(pk=True)
     token = fields.TextField()
 
     class Meta():
         table = 'admin'
-
-default_teachers = [Teacher(teacher_name='Потапов К.Г.'), Teacher(teacher_name='Тумакова Е.В.')]
-default_test_types = [TestType(test_name='РК№1'), TestType(test_name='РК№2'), TestType(test_name='Зачёт')]

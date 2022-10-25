@@ -1,9 +1,9 @@
+from api import sql_provider, dtests
 import json
 from quart import Blueprint, request, make_response, Response
 from datetime import datetime
 from api.modules.json_utilies import year_to_json, group_to_json, student_to_json, question_to_json, test_type_to_json
-from api.models import Group, Student, Year, RK1, RK2, Test, Admin, default_test_types
-from api import sql_provider
+from api.models import Group, Student, Year, RK1, RK2, Test, Admin
 from api.modules.custom_exceptions import ContentError
 
 admin = Blueprint('admin', __name__)
@@ -30,7 +30,7 @@ async def admin_index():
     years = await sql_provider.get_all(Year)
     groups = await sql_provider.get_all(Group)
     students = await sql_provider.get_all(Student)
-    tests = await sql_provider.set_many(default_test_types)
+    tests = [dtests[key] for key in dtests]
     jsonfied_years = [await year_to_json(year) for year in years]
     jsonfied_groups = [await group_to_json(group) for group in groups]
     jsonfied_students = [await student_to_json(student) for student in students]

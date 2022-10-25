@@ -3,7 +3,7 @@ from api.models import *
 from tortoise.exceptions import DoesNotExist, IntegrityError, TransactionManagementError
 import logging
 
-Tortoise_model = TypeVar('Tortoise_model', Admin, Year, Group, Student, Teacher, TestType, RK1, RK2, Test)
+Tortoise_model = TypeVar('Tortoise_model', Admin, Year, Group, Student, RK1, RK2, Test)
 
 class SQLProvider():
     async def get_all(self, model: Tortoise_model, filter: dict=None):
