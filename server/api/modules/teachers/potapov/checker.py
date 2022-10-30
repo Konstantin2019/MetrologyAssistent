@@ -35,13 +35,10 @@ class RK1_Checker():
                 if len(spam) != 2:
                     raise ContentError
                 if correct_answer['k1'] < correct_answer['k2']:
-                    student_answer = { 'k1': float(spam[0]), 'k2': float(spam[1]) } \
-                                     if float(spam[0]) < float(spam[1]) \
-                                     else { 'k2': float(spam[0]), 'k1': float(spam[1]) }
+                    student_answer = { 'k1': float(spam[0]), 'k2': float(spam[1]) }
                 elif correct_answer['k2'] < correct_answer['k1']:
-                    student_answer = { 'k2': float(spam[0]), 'k1': float(spam[1]) } \
-                                     if float(spam[0]) < float(spam[1]) \
-                                     else { 'k1': float(spam[0]), 'k2': float(spam[1]) }
+                    student_answer = { 'k2': float(spam[0]), 'k1': float(spam[1]) }
+                    student_answer = dict(sorted(student_answer.items(), key=lambda item: item[1]))
                 else:
                     student_answer = { 'k1': float(spam[0]), 'k2': float(spam[1]) }
                 k1_dif = (correct_answer['k1'] - student_answer['k1']) / correct_answer['k1']

@@ -15,15 +15,15 @@ sql_provider = SQLProvider()
 
 from api.modules.teachers.teacher import Teacher
 dteachers = {
-             "potapov": Teacher("Потапов К.Г.", 60, 60, 60),
-             "tumakova": Teacher("Тумакова Е.В.", 90, 90, 90)
+             "potapov": Teacher(1, "Потапов К.Г.", 60, 60, 60),
+             "tumakova": Teacher(2, "Тумакова Е.В.", 90, 90, 90)
             }
            
 from api.modules.teachers.test_type import TestType
 dtests = {
-          "rk1": TestType("РК№1"),
-          "rk2": TestType("РК№2"),
-          "test": TestType("Тест")
+          "rk1": TestType(1, "РК№1"),
+          "rk2": TestType(2, "РК№2"),
+          "test": TestType(3, "Тест")
          }
 
 from api.controllers.auth_controllers import auth

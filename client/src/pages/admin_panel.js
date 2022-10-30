@@ -20,7 +20,7 @@ const AdminPanel = () => {
     useEffect(() => {
         let url = '/api/admin';
         let token = sessionStorage.getItem('token');
-        axios.get(url, { headers: {'token': token} })
+        axios.get(url, { params: {'token': token} })
             .then(res => res.data)
             .then(data => {
                 dbYears.current = data['years'].map(json => JSON.parse(json));

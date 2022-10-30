@@ -88,8 +88,10 @@ def __rk1_task3_prepare(text, values):
                .replace('{L2 = }', 'L2 = ' + str(values['Task']['L2'])) \
                .replace('{T1 = }', 'T1 = ' + str(values['Task']['T1'])) \
                .replace('{T2 = }', 'T2 = ' + str(values['Task']['T2']))
-    answer = { 'k1': round(values['Answer']['k1'], 1), \
-               'k2': round(values['Answer']['k2'], 1) }
+    answer = { 'k1': round(values['Answer']['k1']), \
+               'k2': round(values['Answer']['k2']) }
+    if answer['k2'] < answer['k1']:
+        answer = dict(sorted(answer.items(), key=lambda item: item[1]))
     return { text : dumps(answer) }
 
 def __rk1_task4_prepare(text, values):

@@ -10,9 +10,7 @@ admin = Blueprint('admin', __name__)
 
 @admin.before_request
 async def admin_middleware():
-    if request.method == "OPTIONS":
-        return await make_response('', 200)
-    token = request.headers.get('token')
+    token = request.args.get('token')
     if token:
         admin: Admin = await sql_provider.get(Admin, key={'id': 1})
         if admin and admin.token == token:
@@ -21,8 +19,7 @@ async def admin_middleware():
 
 @admin.after_request
 async def response_wrapper(response: Response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers", "token")
+    response.headers.add("Access-Control-Allow-Origin", "www.simplemetrology.ru")
     return response
 
 @admin.route('/', methods=['GET'])

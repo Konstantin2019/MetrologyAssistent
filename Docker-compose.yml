@@ -35,6 +35,6 @@ services:
     environment:
       TZ: Europe/Minsk
     ports:
-      - 3000:80
+      - 80:80
     depends_on:
       - api

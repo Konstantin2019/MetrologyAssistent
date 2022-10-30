@@ -122,10 +122,10 @@ thead button.descending::after {
   .table td {
     display: block;
   }
-  .table th.email {
+  .table th.patronymic {
     display: none;
   }
-  .table td.email {
+  .table td.patronymic {
     display: none;
   }
   input[type=submit] {
@@ -154,10 +154,10 @@ thead button.descending::after {
   .table td {
     display: block;
   }
-  .table th.email {
+  .table th.patronymic {
     display: none;
   }
-  .table td.email {
+  .table td.patronymic {
     display: none;
   }
   input[type=submit] {
@@ -178,10 +178,10 @@ thead button.descending::after {
     border-radius: .8rem; 
     max-width: 90%;
   }
-  .table th.email {
+  .table th.patronymic {
     display: none;
   }
-  .table td.email {
+  .table td.patronymic {
     display: none;
   }
   input[type=submit] {
