@@ -4,7 +4,7 @@ from api.models import Student, RK1, RK2, Test, Teacher
 from api.core.task_selector import select
 from api.helpers.support_utilies import teacher_to_ru
 from datetime import datetime
-from api.error import ContentError
+from api.errors import ContentError
 
 async def prelude(provider: SQLProvider, student_id: int, rk_choice: str, teacher_name: str, post=False):
     student = await provider.get(Student, key={'id': student_id})

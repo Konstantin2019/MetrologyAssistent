@@ -10,4 +10,4 @@ echo "Postgres is ready!"
 
 export TZ=Europe/Minsk
 
-hypercorn --bind 0.0.0.0:3001 runner:api 
+uvicorn --host 0.0.0.0 --port 3001 runner:api 

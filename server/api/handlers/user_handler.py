@@ -2,7 +2,7 @@ from api.providers.sql_provider import SQLProvider
 from api.core.core_ops import prelude, load_task, finish_task, do_on_complete
 from api.helpers.json_utilies import question_to_json
 from json import dumps
-from api.error import ContentError
+from api.errors import ContentError
 
 async def get_test_handler(provider: SQLProvider, student_id: int, rk_choice: str, teacher: str):
     state = await prelude(provider, student_id, rk_choice, teacher)

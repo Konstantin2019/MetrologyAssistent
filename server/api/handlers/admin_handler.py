@@ -1,7 +1,7 @@
 from api.providers.sql_provider import SQLProvider
 from api.helpers.json_utilies import *
 from datetime import datetime
-from api.error import ContentError
+from api.errors import ContentError
 
 async def admin_index_handler(provider: SQLProvider):
     years = await provider.get_all(Year)
@@ -61,6 +61,8 @@ async def add_students_handler(provider: SQLProvider, payload: dict):
                                         patronymic=student['patronymic'],
                                         email=student['email'], group=group))
             students = await provider.set_many(students)
+            if not students:
+                return 'Отсутствует учебная группа в БД!', 400
             return dumps([student.id for student in students]), 201
     except (KeyError, ContentError):
         return 'Невалидные данные для создания студента(ов)!', 400   

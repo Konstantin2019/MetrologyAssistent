@@ -2,12 +2,12 @@ from quart import Quart
 from tortoise.contrib.quart import register_tortoise
 
 api = Quart(__name__)
-api.config.from_object('config.DevelopmentConfig')
+api.config.from_object('config.ProductionConfig')
 
 register_tortoise(
     api,
     config=api.config['TORTOISE_ORM'],
-    generate_schemas=True,
+    generate_schemas=False,
 )
 
 from api.providers.sql_provider import SQLProvider

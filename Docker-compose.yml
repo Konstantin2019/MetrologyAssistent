@@ -20,8 +20,6 @@ services:
       context: .
       dockerfile: Dockerfile.api
     entrypoint: ./quart-entrypoint.sh
-    environment:
-      TZ: Europe/Minsk
     depends_on:
       - db
     environment:
