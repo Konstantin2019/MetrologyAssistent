@@ -33,7 +33,7 @@ class RK1_Checker():
                 Ts_dif = (correct_answer['Ts'] - student_answer['Ts']) / correct_answer['Ts']
                 if abs(Smax_dif) <= 0.05 and abs(Smin_dif) <= 0.05 \
                    and abs(Sm_dif) <= 0.05 and abs(Ts_dif) <= 0.05:
-                    return 12, dumps(student_answer)
+                    return 1, dumps(student_answer)
                 else:
                     return 0, dumps(student_answer)
             elif index == 3:
