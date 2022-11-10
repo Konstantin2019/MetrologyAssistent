@@ -1,9 +1,20 @@
 from random import randint
 from transliterate import translit
+from datetime import datetime
 
 def generate_token():
     rand = [chr(randint(97, 122)) for i in range(20)]
-    return ''.join(rand)
+    return ''.join(rand) + '|' + datetime.now().isoformat()
+
+def validate_token(token: str):
+    idx = token.find('|')
+    if idx > 0:
+        expire = token.split('|')[1]
+        timestamp = datetime.fromisoformat(expire)
+        time_left = datetime.now() - timestamp
+        if time_left.seconds < 3600:
+            return True
+    return False 
 
 def teacher_to_eng(teacher_name: str):
     return translit(teacher_name, reversed=True).split(' ')[0].lower()

@@ -1,6 +1,6 @@
 from api import api
 from api.providers.sql_provider import SQLProvider
-from api.helpers.support_utilies import generate_token
+from api.helpers.support_utilies import generate_token, validate_token
 from api.helpers.json_utilies import *
 from api.models import Admin
 from datetime import datetime
@@ -20,16 +20,19 @@ async def admin_auth_handler(provider: SQLProvider, payload: dict):
     if payload['login'] == api.config['ADMIN_LOGIN'] and \
     payload['password'] == api.config['ADMIN_PASSWORD']:
         tokens = await provider.get_all(Admin)
-        tokens_ids = [token.id for token in tokens]
-        if len(tokens_ids) > 1:
+        if len(tokens) > 1:
+            tokens_ids = [token.id for token in tokens]
             await provider.delete_many(Admin, tokens_ids[1:])
-        token = generate_token()
-        if len(tokens_ids) == 0:
-            id = await provider.set(Admin(token=token))
-        else:
-            id = await provider.update(Admin, 1, {'token': token})
-        if not id:
-            return 'Не удалось добавить токен в БД!', 500
+        token = tokens[0].token
+        valid = validate_token(token)
+        if not valid:
+            token = generate_token()
+            if len(tokens) == 0:
+                id = await provider.set(Admin(token=token))
+            else:
+                id = await provider.update(Admin, 1, {'token': token})
+            if not id:
+                return 'Не удалось добавить токен в БД!', 500
         return dumps(token), 200
     else:
         return 'Неверная пара логин/пароль!', 401

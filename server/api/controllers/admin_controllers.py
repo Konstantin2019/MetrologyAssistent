@@ -2,6 +2,7 @@ from api import sql_provider
 from quart import Blueprint, request, make_response, Response
 from api.handlers.admin_handler import *
 from api.models import Admin
+from api.helpers.support_utilies import validate_token
 
 admin = Blueprint('admin', __name__)
 
@@ -11,7 +12,9 @@ async def admin_middleware():
     if token:
         admin: Admin = await sql_provider.get(Admin, key={'id': 1})
         if admin and admin.token == token:
-            return None
+            valid = validate_token(token)
+            if valid:
+                return None
     return await make_response('Не авторизован!', 401)
 
 @admin.after_request
