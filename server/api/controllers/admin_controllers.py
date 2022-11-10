@@ -16,7 +16,7 @@ async def admin_middleware():
 
 @admin.after_request
 async def response_wrapper(response: Response):
-    response.headers.add("Access-Control-Allow-Origin", "www.simplemetrology.ru")
+    response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
 @admin.route('/', methods=['GET'])

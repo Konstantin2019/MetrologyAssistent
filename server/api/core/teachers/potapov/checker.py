@@ -1,6 +1,6 @@
 from json import loads, dumps
 import re
-from api.modules.custom_exceptions import ContentError
+from api.error import ContentError
 
 class RK1_Checker():
     def __init__(self, correct_answer, answer):

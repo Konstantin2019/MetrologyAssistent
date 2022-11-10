@@ -6,9 +6,12 @@ from api.models import Admin
 from datetime import datetime
 
 async def db_init_handler(provider: SQLProvider):
-    teachers = [Teacher("Потапов К.Г.", 60, 60, 60), Teacher("Тумакова Е.В.", 90, 90, 90)]
+    teachers = [
+        Teacher(teacher_name='Потапов К.Г.', rk1_time=60, rk2_time=60, test_time=60), 
+        Teacher(teacher_name='Тумакова Е.В.', rk1_time=90, rk2_time=90, test_time=90)
+        ]
     await provider.set_many(teachers)
-    tests = [TestType("РК№1"), TestType("РК№2"), TestType("Тест")]
+    tests = [TestType(test_name="РК№1"), TestType(test_name="РК№2"), TestType(test_name="Тест")]
     await provider.set_many(tests)
 
 async def admin_auth_handler(provider: SQLProvider, payload: dict):

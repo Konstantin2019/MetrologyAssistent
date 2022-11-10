@@ -1,6 +1,6 @@
 from json import dumps
 from api.models import Group, Student, Year, RK1, RK2, Test, Teacher, TestType
-from transliterate import translit
+from api.helpers.support_utilies import teacher_to_eng, test_to_eng
 
 async def year_to_json(year: Year):
     if year:
@@ -29,12 +29,12 @@ async def teacher_to_json(teacher: Teacher):
     if teacher:
         teacher_fields = { k:v for k, v in vars(teacher).items() if not k.startswith('_') }
         teacher_fields["teacher_view"] = teacher.teacher_name
-        teacher_fields["teacher_name"] = translit(teacher.teacher_name, reversed=True).split(' ')[0].lower()
+        teacher_fields["teacher_name"] = teacher_to_eng(teacher.teacher_name)
         return dumps(teacher_fields, ensure_ascii=False)
 
 async def test_type_to_json(test: TestType):
     if test:
         test_fields = { k:v for k, v in vars(test).items() if not k.startswith('_') }
         test_fields["test_view"] = test.test_name
-        test_fields["test_name"] = translit(test.test_name, reversed=True).replace('№', '').lower()
+        test_fields["test_name"] = test_to_eng(test.test_name)
         return dumps(test_fields, ensure_ascii=False)

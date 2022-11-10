@@ -7,7 +7,7 @@ api.config.from_object('config.DevelopmentConfig')
 register_tortoise(
     api,
     config=api.config['TORTOISE_ORM'],
-    generate_schemas=False,
+    generate_schemas=True,
 )
 
 from api.providers.sql_provider import SQLProvider

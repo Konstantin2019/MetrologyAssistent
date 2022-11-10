@@ -7,7 +7,7 @@ async def admin_index_handler(provider: SQLProvider):
     years = await provider.get_all(Year)
     groups = await provider.get_all(Group)
     students = await provider.get_all(Student)
-    tests = await provider.get_all(Test)
+    tests = await provider.get_all(TestType)
     jsonfied_years = [await year_to_json(year) for year in years]
     jsonfied_groups = [await group_to_json(group) for group in groups]
     jsonfied_students = [await student_to_json(student) for student in students]

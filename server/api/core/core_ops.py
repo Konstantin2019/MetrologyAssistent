@@ -2,6 +2,7 @@ from api import api
 from api.providers.sql_provider import SQLProvider
 from api.models import Student, RK1, RK2, Test, Teacher
 from api.core.task_selector import select
+from api.helpers.support_utilies import teacher_to_ru
 from datetime import datetime
 from api.error import ContentError
 
@@ -17,7 +18,7 @@ async def prelude(provider: SQLProvider, student_id: int, rk_choice: str, teache
                   else student.test_finish_time
     if finish_time:
         return 'Рубежный контроль уже выполнен', 400
-    teacher: Teacher = await provider.get(Teacher, key={"teacher_name": teacher_name})
+    teacher: Teacher = await provider.get(Teacher, key={"teacher_name": teacher_to_ru(teacher_name)})
     interval = teacher.rk1_time if rk_choice == 'rk1' \
                else teacher.rk2_time if rk_choice == 'rk2' \
                else teacher.test_time
