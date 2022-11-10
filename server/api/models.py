@@ -130,3 +130,20 @@ class Admin(Model):
 
     class Meta():
         table = 'admin'
+
+class Teacher(Model):
+    id = fields.IntField(pk=True)
+    teacher_name = fields.CharField(max_length=32)
+    rk1_time = fields.IntField(null=True)
+    rk2_time = fields.IntField(null=True)
+    test_time = fields.IntField(null=True)
+
+    class Meta():
+        table = 'teachers'
+
+class TestType(Model):
+    id = fields.IntField(pk=True)
+    test_name = fields.CharField(max_length=12)
+
+    class Meta():
+        table = 'test_types'

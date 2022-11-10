@@ -1,7 +1,5 @@
 from json import dumps
-from api.models import Group, Student, Year, RK1, RK2, Test
-from api.modules.teachers.teacher import Teacher
-from api.modules.teachers.test_type import TestType
+from api.models import Group, Student, Year, RK1, RK2, Test, Teacher, TestType
 from transliterate import translit
 
 async def year_to_json(year: Year):
