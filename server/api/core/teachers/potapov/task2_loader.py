@@ -1,7 +1,7 @@
-from random import gauss, randint, uniform, choice
+from random import randint, uniform, choice
 from collections import namedtuple
-from numpy import mean, std
 from json import load, dumps
+from math import sqrt
 
 #region inner_gen_funcs
 def __rk2_task1_gen():
@@ -99,34 +99,47 @@ def __rk2_task2_gen():
     return __inner_task_gen__()
         
 def __rk2_task3_gen():
-    def __inner_gen__(mu, sigma, delta, T, n):
-        valid = ''
-        operand = choice(['+', '-'])
-        if operand == '+':
-            X = [round(gauss(mu, sigma) + delta, 3) for i in range(n)]
-        if operand == '-':
-            X = [round(gauss(mu, sigma) - delta, 3) for i in range(n)]
-        P = choice([0.95, 0.99])
-        if P == 0.95:
-            k = 2
+    def __inner_gen__(method, d, D, S, EPC):
+        d, Esd, Eid = d
+        D, EsD, EiD = D
+        S, EsS, EiS = S
+        EPCmin, EPCmax = EPC
+        L = 0.5*d + 0.5*D + S
+        if method == 'метод полной взаимозаменяемости':
+            EsL = 0.5*Eid + 0.5*EiD + EsS - EPCmax
+            EiL = 0.5*Esd + 0.5*EsD + EiS - EPCmin
         else:
-            k = 3
-        Xmin = round(mu - T/2, 3)
-        Xmax = round(mu + T/2, 3)
-        Xqmin = round(mean(X) - k*std(X, ddof=1), 3)
-        Xqmax = round(mean(X) + k*std(X, ddof=1), 3)
-        if Xqmin >= Xmin and Xqmax <= Xmax:
-            valid = 'годно'
-        else:
-            valid = 'брак'
-        return {'Task': {'X': X, 'P': P, 'n': n, 'Xmin': Xmin, 'Xmax': Xmax}, \
-                'Answer': {'valid': valid}
+            Emd, Td = 0.5*(Esd + Eid), Esd - Eid
+            EmD, TD = 0.5*(EsD + EiD), EsD - EiD
+            EmS, TS = 0.5*(EsS + EiS), EsS - EiS
+            TPC = EPCmax - EPCmin
+            EmL = 0.5*Emd + 0.5*EmD + EmS
+            TL = sqrt(TS**2 - (0.5*Td)**2 - (0.5*TD)**2 - TPC**2)
+            EsL = EmL + TL / 2
+            EiL = EmL - TL / 2
+        return {'Task': {'dmax': d + Esd, 'dmin': d + Eid, \
+                         'Dmax': D + EsD, 'Dmin': D + EiD, \
+                         'Smax': S + EsS, 'Smin': S + EiS, \
+                         'EPCmax': EPCmax, 'EPCmin': EPCmin, \
+                         'method': method }, \
+                'Answer': {'L': L, 'EsL': EsL, 'EiL': EiL}
                }
-    mu = randint(10,100)
-    T = uniform(0.03,0.1)
-    sigma = T/choice([4,5,6])
-    delta = uniform(0.002,0.01)
-    return __inner_gen__(mu=mu, sigma=sigma, delta=delta, T=T, n=randint(30,50))
+    method = ['метод полной взаимозаменяемости', 'вероятностный метод']
+    d = randint(60,180)
+    Esd = uniform(-0.05,0.05)
+    Td = uniform(0.03,0.12)
+    Eid = Esd - Td
+    D = d - randint(10, 20)
+    EsD = uniform(-0.05,0.05)
+    TD = uniform(0.03,0.12)
+    EiD = EsD - TD
+    S = 0
+    EsS = uniform(0.15,0.30)
+    EiS = - EsS
+    EPCmax = uniform(0.005,0.01)
+    EPCmin = - EPCmax
+    return __inner_gen__(method=choice(method), d=(d, Esd, Eid), D=(D, EsD, EiD), \
+                         S=(S, EsS, EiS), EPC=(EPCmax, EPCmin))
 
 def __rk2_task4_gen():
     def __inner_gen__(R, EsR, EiR):
@@ -192,11 +205,20 @@ def __rk2_task2_prepare(text, values):
     return { text : dumps(answer, ensure_ascii=False) }
 
 def __rk2_task3_prepare(text, values):
-    text = text.replace('{n = }', 'n = ' + str(values['Task']['n'])) \
-               .replace('{X = []}', 'X = ' + str(values['Task']['X'])) \
-               .replace('{[]}', '[' + str(values['Task']['Xmin']) + '; ' + str(values['Task']['Xmax']) + ']') \
-               .replace('{P = }', 'P = ' + str(values['Task']['P']))
-    answer = { 'valid': values['Answer']['valid'] }
+    text = text.replace('{dmax = }', 'dmax = ' + str(values['Task']['dmax'])) \
+               .replace('{dmin = }', 'dmin = ' + str(values['Task']['dmin'])) \
+               .replace('{Dmax = }', 'Dmax = ' + str(values['Task']['Dmax'])) \
+               .replace('{Dmin = }', 'Dmin = ' + str(values['Task']['Dmin'])) \
+               .replace('{Smax = }', 'Smax = ' + str(values['Task']['Smax'])) \
+               .replace('{Smin = }', 'Smin = ' + str(values['Task']['Smin'])) \
+               .replace('{EPCmax = }', 'EPCmax = ' + str(values['Task']['EPCmax'])) \
+               .replace('{EPCmin = }', 'EPCmin = ' + str(values['Task']['EPCmin'])) \
+               .replace('{ }', str(values['Task']['method'])) 
+    answer = { 
+               'L': values['Answer']['L'], \
+               'EsL': values['Answer']['EsL'], \
+               'EiL': values['Answer']['EiL'] 
+             }
     return { text : dumps(answer, ensure_ascii=False) }
 
 def __rk2_task4_prepare(text, values):
