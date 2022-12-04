@@ -23,6 +23,7 @@ async def student_to_json(student: Student):
 async def question_to_json(question: RK1 or RK2 or Test):
     if question:
         question_fields = { k:v for k, v in vars(question).items() if not k.startswith('_') }
+        question_fields['answer_image'] = question.answer_image.decode() if question.answer_image else None
         return dumps(question_fields, ensure_ascii=False)
 
 async def teacher_to_json(teacher: Teacher):

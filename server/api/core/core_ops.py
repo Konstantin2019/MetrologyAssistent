@@ -9,7 +9,7 @@ from api.errors import ContentError
 async def prelude(provider: SQLProvider, student_id: int, rk_choice: str, teacher_name: str, post=False):
     student = await provider.get(Student, key={'id': student_id})
     if not student:
-        return 'Студент не найден', 404
+        return 'Студент не найден!', 404
     start_time = student.rk1_start_time if rk_choice == 'rk1' \
                  else student.rk2_start_time if rk_choice == 'rk2' \
                  else student.test_start_time
@@ -17,7 +17,7 @@ async def prelude(provider: SQLProvider, student_id: int, rk_choice: str, teache
                   else student.rk2_finish_time if rk_choice == 'rk2' \
                   else student.test_finish_time
     if finish_time:
-        return 'Рубежный контроль уже выполнен', 400
+        return 'Рубежный контроль уже выполнен!', 400
     teacher: Teacher = await provider.get(Teacher, key={"teacher_name": teacher_to_ru(teacher_name)})
     interval = teacher.rk1_time if rk_choice == 'rk1' \
                else teacher.rk2_time if rk_choice == 'rk2' \
@@ -40,8 +40,6 @@ async def load_task(provider: SQLProvider, *args):
     file_name = 'rk1.json' if rk_choice == 'rk1' \
                 else 'rk2.json' if rk_choice == 'rk2' \
                 else 'test.json'
-    if finish_time:
-        return []
     if not start_time:
         try:
             rk_path = api.config['UPLOAD_FOLDER'] + f'/{teacher_name}/task_template/{file_name}'

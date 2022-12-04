@@ -1,4 +1,6 @@
 import { React, useState, useEffect } from "react";
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 import { useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen } from '@fortawesome/free-solid-svg-icons';
@@ -42,6 +44,7 @@ const ViewQuestion = () => {
                             <th scope="col">Правильный ответ</th>
                             <th scope="col">Балл</th>
                             <th scope="col"></th>
+                            <th scope="col">Фото</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -73,6 +76,13 @@ const ViewQuestion = () => {
                                             <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
                                         </span>
                                     </button>
+                                </td>
+                                <td>
+                                    <Popup trigger={<button className="btn btn-outline-primary">Фото</button>}>
+                                        <div>
+                                            <img src={'data:image/jpeg;base64,' + window.btoa(question.answer_image)} width={'100%'} height={'100%'} alt={'Решение'}></img>
+                                        </div>
+                                    </Popup>
                                 </td>
                             </tr>
                         ))}

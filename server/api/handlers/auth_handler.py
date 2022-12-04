@@ -23,14 +23,12 @@ async def admin_auth_handler(provider: SQLProvider, payload: dict):
         if len(tokens) > 1:
             tokens_ids = [token.id for token in tokens]
             await provider.delete_many(Admin, tokens_ids[1:])
-        token = tokens[0].token
-        valid = validate_token(token)
-        if not valid:
+        if len(tokens) == 0:
             token = generate_token()
-            if len(tokens) == 0:
-                id = await provider.set(Admin(token=token))
-            else:
-                id = await provider.update(Admin, 1, {'token': token})
+            id = await provider.set(Admin(token=token))
+        else:
+            token = generate_token() if not validate_token(tokens[0].token) else tokens[0].token
+            id = await provider.update(Admin, 1, {'token': token})
             if not id:
                 return 'Не удалось добавить токен в БД!', 500
         return dumps(token), 200

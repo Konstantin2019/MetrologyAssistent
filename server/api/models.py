@@ -83,7 +83,7 @@ class RK1(Model):
     student_answer = fields.TextField(null=True)
     correct_answer = fields.TextField(null=True)
     score = fields.IntField(null=True)
-    answer_screen = fields.BinaryField(null=True)
+    answer_image = fields.BinaryField(null=True)
     image_url = fields.CharField(max_length=64, null=True)
     student = fields.ForeignKeyField('models.Student', related_name='rk1_questions', on_delete=fields.CASCADE)
 
@@ -100,7 +100,7 @@ class RK2(Model):
     student_answer = fields.TextField(null=True)
     correct_answer = fields.TextField(null=True)
     score = fields.IntField(null=True)
-    answer_screen = fields.BinaryField(null=True)
+    answer_image = fields.BinaryField(null=True)
     image_url = fields.CharField(max_length=64, null=True)
     student = fields.ForeignKeyField('models.Student', related_name='rk2_questions', on_delete=fields.CASCADE)
 
@@ -117,7 +117,7 @@ class Test(Model):
     student_answer = fields.TextField(null=True)
     correct_answer = fields.TextField(null=True)
     score = fields.IntField(null=True)
-    answer_screen = fields.BinaryField(null=True)
+    answer_image = fields.BinaryField(null=True)
     image_url = fields.CharField(max_length=64, null=True)
     student = fields.ForeignKeyField('models.Student', related_name='test_questions', on_delete=fields.CASCADE)
 

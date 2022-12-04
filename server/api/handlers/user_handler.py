@@ -19,12 +19,16 @@ async def send_test_handler(provider: SQLProvider, student_id: int, rk_choice: s
     state = await prelude(provider, student_id, rk_choice, teacher, post=True)
     if state[1] != 200:
         return await state
-    checker, rk_cls = state[0] 
+    checker, rk_cls = state[0]
     try:
         if payload and 'status' in payload and payload['status'] == 'finish':
             await do_on_complete(provider, student_id, rk_choice)
-            return '', 204
+            return 'Рубежный контроль завершён!', 200
         question_id = payload['question_id']
+        if 'answer_image' in payload and payload['answer_image']:
+            answer_image = payload['answer_image'].encode()
+            await provider.update(rk_cls, question_id, {'answer_image': answer_image})
+            return 'Фото успешно загружено!', 200
         question_index = payload['index']
         student_answer = payload['student_answer']
         success = await finish_task(provider, question_id, question_index, student_answer, checker, rk_choice, rk_cls)

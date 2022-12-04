@@ -103,7 +103,7 @@ def __rk2_task3_gen():
         d, Esd, Eid = d
         D, EsD, EiD = D
         S, EsS, EiS = S
-        EPCmin, EPCmax = EPC
+        EPCmax, EPCmin = EPC
         L = 0.5*d + 0.5*D + S
         if method == 'метод полной взаимозаменяемости':
             EsL = 0.5*Eid + 0.5*EiD + EsS - EPCmax
@@ -115,28 +115,28 @@ def __rk2_task3_gen():
             TPC = EPCmax - EPCmin
             EmL = 0.5*Emd + 0.5*EmD + EmS
             TL = sqrt(TS**2 - (0.5*Td)**2 - (0.5*TD)**2 - TPC**2)
-            EsL = EmL + TL / 2
-            EiL = EmL - TL / 2
-        return {'Task': {'dmax': d + Esd, 'dmin': d + Eid, \
-                         'Dmax': D + EsD, 'Dmin': D + EiD, \
-                         'Smax': S + EsS, 'Smin': S + EiS, \
+            EsL = round(EmL + TL / 2, 2)
+            EiL = round(EmL - TL / 2, 2)
+        return {'Task': {'dmax': d + 0.001*Esd, 'dmin': d + 0.001*Eid, \
+                         'Dmax': D + 0.001*EsD, 'Dmin': D + 0.001*EiD, \
+                         'Smax': S + 0.001*EsS, 'Smin': S + 0.001*EiS, \
                          'EPCmax': EPCmax, 'EPCmin': EPCmin, \
                          'method': method }, \
                 'Answer': {'L': L, 'EsL': EsL, 'EiL': EiL}
                }
     method = ['метод полной взаимозаменяемости', 'вероятностный метод']
-    d = randint(60,180)
-    Esd = uniform(-0.05,0.05)
-    Td = uniform(0.03,0.12)
+    d = randint(60, 180)
+    Esd = randint(-50, 50)
+    Td = randint(30, 120)
     Eid = Esd - Td
     D = d - randint(10, 20)
-    EsD = uniform(-0.05,0.05)
-    TD = uniform(0.03,0.12)
+    EsD = randint(-50, 50)
+    TD = randint(30, 120)
     EiD = EsD - TD
-    S = 0
-    EsS = uniform(0.15,0.30)
+    S = randint(5, 15)
+    EsS = randint(150, 300)
     EiS = - EsS
-    EPCmax = uniform(0.005,0.01)
+    EPCmax = randint(5, 10)
     EPCmin = - EPCmax
     return __inner_gen__(method=choice(method), d=(d, Esd, Eid), D=(D, EsD, EiD), \
                          S=(S, EsS, EiS), EPC=(EPCmax, EPCmin))
@@ -213,7 +213,7 @@ def __rk2_task3_prepare(text, values):
                .replace('{Smin = }', 'Smin = ' + str(values['Task']['Smin'])) \
                .replace('{EPCmax = }', 'EPCmax = ' + str(values['Task']['EPCmax'])) \
                .replace('{EPCmin = }', 'EPCmin = ' + str(values['Task']['EPCmin'])) \
-               .replace('{ }', str(values['Task']['method'])) 
+               .replace('{ }', '"' + str(values['Task']['method']) + '"') 
     answer = { 
                'L': values['Answer']['L'], \
                'EsL': values['Answer']['EsL'], \

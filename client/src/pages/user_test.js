@@ -25,8 +25,8 @@ const UserTest = () => {
     const finish = useCallback(
         () => {
             axios.post(url, { status: 'finish' })
-                .then(_ => {
-                    alert("Рубежный контроль завершён!");
+                .then(res => {
+                    alert(res.data);
                     navigate('/');
                 })
                 .catch(err => alert(err.response.data))

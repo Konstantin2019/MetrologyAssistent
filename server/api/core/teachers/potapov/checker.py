@@ -102,14 +102,15 @@ class RK2_Checker():
                 else:
                     return 0, dumps(student_answer, ensure_ascii=False)
             elif index == 3:
-                if len(spam) < 1 and len(spam) > 2:
+                if len(spam) != 3:
                     raise ContentError
-                student_answer = { 'valid': spam[0].lower(), \
-                                   'explanation': spam[1] if len(spam) == 2 else 'нет' }
-                if student_answer['valid'] == correct_answer['valid']:
-                    return 1, dumps(student_answer, ensure_ascii=False)
+                student_answer = { 'L': float(spam[0]), 'EsL': float(spam[1]), 'EiL': float(spam[2]) }
+                if abs(student_answer['L'] - correct_answer['L']) <= 0.05 and \
+                   abs(student_answer['EsL'] - correct_answer['EsL']) <= 0.05 and \
+                   abs(student_answer['EiL'] == correct_answer['EiL']) <= 0.05:
+                    return 1, dumps(student_answer)
                 else: 
-                    return 0, dumps(student_answer, ensure_ascii=False) 
+                    return 0, dumps(student_answer)
             elif index == 4:
                 if len(spam) != 2:
                     raise ContentError
