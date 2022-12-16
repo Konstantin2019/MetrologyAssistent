@@ -10,6 +10,8 @@ class RK1_Checker():
     def __call__(self, index):
         try:
             correct_answer = loads(self.correct_answer)
+            if not self.answer:
+                raise ContentError
             self.answer = self.answer.replace(',', '.').strip()
             spam = re.split('; |: |/ |;|:| |/|&', self.answer)
             if index == 1:
@@ -86,6 +88,8 @@ class RK2_Checker():
     def __call__(self, index):
         try:
             correct_answer = loads(self.correct_answer)
+            if not self.answer:
+                raise ContentError
             self.answer = self.answer.replace(',', '.').strip()
             spam = re.split('; |: |/ |;|:| |/|&', self.answer)
             if index == 1:
@@ -128,6 +132,8 @@ class Test_Checker():
     def __call__(self, index):
         try:
             correct_answer = loads(self.correct_answer)
+            if not self.answer:
+                raise ContentError
             self.answer = self.answer.replace(',', '.').strip()
             spam = re.split('; |: |/ |;|:| |/|&', self.answer)
             if index == 1:

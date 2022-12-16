@@ -10,6 +10,8 @@ class RK1_Checker():
     def __call__(self, index):
         try:
             correct_answer = loads(self.correct_answer)
+            if not self.answer:
+                raise ContentError
             self.answer = self.answer.replace(',', '.').strip()
             spam = re.split('; |: |/ |;|:| |/|&', self.answer)
             if index == 1:
@@ -77,6 +79,8 @@ class RK2_Checker():
     def __call__(self, index):
         try:
             correct_answer = loads(self.correct_answer)
+            if not self.answer:
+                raise ContentError
             self.answer = self.answer.replace(',', '.').strip()
             spam = re.split('/ |/|&', self.answer)
             if index == 1:
@@ -107,7 +111,7 @@ class RK2_Checker():
                 student_answer = { 'L': float(spam[0]), 'EsL': float(spam[1]), 'EiL': float(spam[2]) }
                 if abs(student_answer['L'] - correct_answer['L']) <= 0.05 and \
                    abs(student_answer['EsL'] - correct_answer['EsL']) <= 0.05 and \
-                   abs(student_answer['EiL'] == correct_answer['EiL']) <= 0.05:
+                   abs(student_answer['EiL'] - correct_answer['EiL']) <= 0.05:
                     return 1, dumps(student_answer)
                 else: 
                     return 0, dumps(student_answer)
@@ -132,6 +136,8 @@ class Test_Checker():
     def __call__(self, index):
         try:
             correct_answer = loads(self.correct_answer)
+            if not self.answer:
+                raise ContentError
             self.answer = self.answer.replace(',', '.').strip()
             spam = re.split('; |: |/ |;|:| |/|&', self.answer)
             if index == 1:
