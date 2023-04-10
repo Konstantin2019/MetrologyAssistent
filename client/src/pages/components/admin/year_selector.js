@@ -14,6 +14,7 @@ const YearSelector = (props) => {
                         id: year_id,
                         year_name: e.target.value
                     }
+                    localStorage.setItem('selectedYear', JSON.stringify(year));
                     setSelectedYear(year);
                 }}>
                 {years.map((year) => (

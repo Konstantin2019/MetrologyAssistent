@@ -28,7 +28,14 @@ const AdminPanel = () => {
                 dbStudents.current = data['students'].map(json => JSON.parse(json));
                 if (dbYears.current.length > 0) {
                     setYears([...dbYears.current]);
-                    setSelectedYear(dbYears.current[0]);
+                    let selectedYearJson = localStorage.getItem('selectedYear');
+                    if (selectedYearJson !== (undefined || null)) {
+                        let selectedYear = JSON.parse(selectedYearJson);
+                        setSelectedYear(selectedYear);
+                    }
+                    else {
+                        setSelectedYear(dbYears.current[0]);
+                    }
                 }
                 if (dbGroups.current.length > 0) {
                     let selectedGroupJson = localStorage.getItem('selectedGroup');
@@ -48,20 +55,30 @@ const AdminPanel = () => {
                 else { alert(err.response.data) }
             });
     }, [dbYears, dbGroups, dbStudents, reload, navigate]);
+
     const groups = useMemo(
-        () => dbGroups.current.filter(g => g.year_id === selectedYear.id),
+        () => {
+            let g = dbGroups.current.filter(g => g.year_id === selectedYear.id);
+            if (g.length > 0) { setSelectedGroup(g[0]) }
+            return g;
+        },
         [dbGroups, selectedYear]
     );
+
+    //useEffect(() => setSelectedGroup(dbGroups.current.filter(g => g.year_id === selectedYear.id)[0]), [dbGroups, selectedYear]);
+
     const students = useMemo(
         () => dbStudents.current.filter(s => groups.map(g => g.id).includes(s.group_id)),
         [dbStudents, groups]
     );
+
     const currentStudents = useMemo(
         () => students
             .filter(s => s.group_id === selectedGroup.id)
             .sort((s1, s2) => s1.surname.toLowerCase() > s2.surname.toLowerCase() ? 1 : -1),
         [selectedGroup, students]
     );
+
     return (
         <Tabs defaultActiveKey="view" className="mb-3" style={{ "justifyContent": "center" }}>
             <Tab eventKey="view" title="Просмотреть">
