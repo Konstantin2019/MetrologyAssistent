@@ -6,6 +6,10 @@ class Year(Model):
     id = fields.IntField(pk=True)
     year_name = fields.IntField()
 
+    async def rel_groups(self):
+        await self.fetch_related('groups')
+        return list(self.groups)
+
     def __str__(self):
         return self.year_name
 

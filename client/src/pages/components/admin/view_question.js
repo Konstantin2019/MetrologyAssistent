@@ -78,9 +78,20 @@ const ViewQuestion = () => {
                                     </button>
                                 </td>
                                 <td>
-                                    <Popup trigger={<button className="btn btn-outline-primary">Фото</button>}>
+                                    <Popup trigger={<button className="btn btn-outline-primary">Фото</button>}
+                                        modal
+                                        contentStyle={
+                                            {
+                                                "width": "36.5vw",
+                                                "height": "99vh",
+                                                "alignItems": "center",
+                                                "justifyContent": "center",
+                                                "display": "block"
+                                            }
+                                        }>
                                         <div>
-                                            <img src={'data:image/jpeg;base64,' + window.btoa(question.answer_image)} width={'100%'} height={'100%'} alt={'Решение'}></img>
+                                            <img src={'data:image/jpeg;base64,' + window.btoa(question.answer_image)}
+                                                width={'100%'} height={'100%'} alt={'Решение ' + question.index}></img>
                                         </div>
                                     </Popup>
                                 </td>

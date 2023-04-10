@@ -38,7 +38,7 @@ async def admin_auth_handler(provider: SQLProvider, payload: dict):
 async def for_auth_handler(provider: SQLProvider):
     current_year = datetime.now().year
     year = await provider.get(Year, key={'year_name': current_year})
-    groups = await provider.get_all(Group)
+    groups = await year.rel_groups()
     teachers = await provider.get_all(Teacher)
     tests = await provider.get_all(TestType)
     jsonified_year = await year_to_json(year)

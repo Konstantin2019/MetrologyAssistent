@@ -75,13 +75,13 @@ async def view_student_handler(provider: SQLProvider, student_id: int, rk: str):
         return 'Студент не найден!', 500 
     jsonified_rk = []
     if rk and rk == 'rk1':
-        rk1: RK1 = await student.rk1()
+        rk1 = await student.rk1()
         jsonified_rk = [await question_to_json(question) for question in rk1]
     elif rk and rk == 'rk2':
-        rk2: RK2 = await student.rk2()
+        rk2 = await student.rk2()
         jsonified_rk = [await question_to_json(question) for question in rk2]
     elif rk and rk == 'test':
-        test: Test = await student.test()
+        test = await student.test()
         jsonified_rk = [await question_to_json(question) for question in test]
     return dumps(jsonified_rk), 200
 
